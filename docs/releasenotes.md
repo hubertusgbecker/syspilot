@@ -482,7 +482,7 @@ Two agent fixes: The release agent is refactored from a ~425-line syspilot-speci
   - Fixed: agent deleted change documents instead of archiving (violated REQ_CHG_CHANGE_DOC AC-5)
   - Refactored from ~425 to ~45 lines — KISS template with embedded decisions table
   - First `@syspilot.release` invocation bootstraps decisions by asking user
-  - Closes [#5](https://github.com/enthali/syspilot/issues/5)
+  - Closes [#5](https://github.com/hubertusgbecker/syspilot/issues/5)
 
 - **Setup Agent Dependency Detection** (US_INST_BOOTSTRAP, REQ_INST_AUTO_SETUP, SPEC_INST_SETUP_AGENT)
   - Fixed: setup agent installed sphinx-needs without checking if already available
@@ -707,7 +707,7 @@ Previous releases used sequential IDs (`US_SYSPILOT_001`, `REQ_SYSPILOT_007`). A
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta.3 - 2026-01-31
 
@@ -756,7 +756,7 @@ Bugfix release improving installation UX. Setup Agent now auto-detects syspilot 
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta.2 - 2026-01-30
 
@@ -822,7 +822,7 @@ Second beta release adding installation/update system and complete release autom
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta - 2026-01-30
 
@@ -880,4 +880,4 @@ Initial beta release of syspilot, a requirements engineering toolkit using sphin
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*

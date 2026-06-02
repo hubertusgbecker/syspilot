@@ -3,7 +3,7 @@
 **Status**: approved
 **Branch**: feature/concept-docs
 **Created**: 2026-04-02
-**Author**: @enthali
+**Author**: @hubertusgbecker
 **GitHub Issue**: #15
 
 ---

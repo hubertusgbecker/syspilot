@@ -17,7 +17,7 @@ Cover 100% of your specs with 6x less tokens. Links are deterministic — search
 **Linux / Mac / GitHub Codespaces:**
 ```bash
 mkdir -p .github/agents && curl -fsSL \
-  "https://raw.githubusercontent.com/enthali/syspilot/main/syspilot/agents/syspilot.setup.agent.md" \
+  "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" \
   -o .github/agents/syspilot.setup.agent.md
 ```
 
@@ -25,7 +25,7 @@ mkdir -p .github/agents && curl -fsSL \
 ```powershell
 New-Item -ItemType Directory -Force -Path .github/agents | Out-Null
 Invoke-WebRequest `
-  -Uri "https://raw.githubusercontent.com/enthali/syspilot/main/syspilot/agents/syspilot.setup.agent.md" `
+  -Uri "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" `
   -OutFile ".github/agents/syspilot.setup.agent.md"
 ```
 
@@ -69,7 +69,7 @@ When you request a change, syspilot follows these links to find only the affecte
 
 ## Documentation
 
-📖 **Full docs:** [enthali.github.io/syspilot](https://enthali.github.io/syspilot/index.html)
+📖 **Full docs:** [hubertusgbecker.github.io/syspilot](https://hubertusgbecker.github.io/syspilot/index.html)
 
 Includes methodology, naming conventions, and traceability matrices.
 
