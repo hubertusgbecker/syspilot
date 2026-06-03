@@ -11,7 +11,7 @@ User stories for external and internal documentation artifacts.
    :tags: agent-v2, documentation, external
    :links: SYSP_US_AGENT_ARCH
 
-   **As a** user or customer,
+   **As a** syspilot user,
    **I want to** have up-to-date external documentation (README, methodology,
    architecture, workflows, naming conventions),
    **so that** I can understand and use syspilot.
@@ -38,7 +38,7 @@ User stories for external and internal documentation artifacts.
    :tags: agent-v2, documentation, internal
    :links: SYSP_US_AGENT_ARCH
 
-   **As a** developer or contributor,
+   **As a** syspilot user,
    **I want to** have internal reference docs (copilot-instructions) that
    accurately reflect the current architecture,
    **so that** I can contribute effectively.
@@ -64,7 +64,7 @@ User stories for external and internal documentation artifacts.
    :tags: agent-v2, documentation, conventions, skills
    :links: SYSP_US_DOC_EXTERNAL, SYSP_US_SKILL_ARCH, SYSP_US_AGENT_ARCH
 
-   **As a** contributor or implementer,
+   **As a** syspilot user,
    **I want to** have a concise conventions reference document for Agents and Skills,
    **so that** I can create and extend Agents and Skills correctly and consistently.
 
@@ -95,7 +95,7 @@ User stories for external and internal documentation artifacts.
    :tags: agent-v2, documentation, release-notes
    :links: SYSP_US_AGENT_ARCH
 
-   **As a** stakeholder,
+   **As a** syspilot user,
    **I want to** have structured release notes that document each release,
    **so that** I can track what changed between versions.
 

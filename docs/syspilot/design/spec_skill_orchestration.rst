@@ -8,7 +8,7 @@ Design specifications for the manager-engineer orchestration pattern.
    :id: SYSP_SPEC_SKILL_ORCHESTRATION_PATTERN
    :status: approved
    :tags: agent-v2, skill, orchestration, architecture
-   :links: SYSP_REQ_SKILL_ORCHESTRATION_INVOKE; SYSP_REQ_SKILL_ORCHESTRATION_FRONTMATTER
+   :links: SYSP_REQ_SKILL_ORCHESTRATION_INVOKE, SYSP_REQ_SKILL_ORCHESTRATION_FRONTMATTER
 
    **Definition:**
 
@@ -64,7 +64,7 @@ Design specifications for the manager-engineer orchestration pattern.
         - Invokes
         - Purpose
       * - ``syspilot.cm``
-        - change, implement, uat, verify, mece, trace, release, docu
+       - design, implement, uat, verify, mece, trace, release, docu
         - Full change workflow orchestration
       * - ``syspilot.qm``
         - mece, trace

@@ -72,7 +72,7 @@ Project Manager Requirements
    :status: approved
    :priority: mandatory
    :tags: agent-v2, manager, pm, frontmatter
-   :links: SYSP_US_PM; SYSP_REQ_AGENT_ARCH_FRONTMATTER
+   :links: SYSP_US_PM, SYSP_REQ_AGENT_ARCH_FRONTMATTER
 
    **Description:**
    The Project Manager agent SHALL be configured with YAML frontmatter that
@@ -88,7 +88,7 @@ Project Manager Requirements
 
    * AC-1: PM frontmatter declares ``user-invocable: true``
    * AC-2: PM frontmatter lists ``agents: ["syspilot.release", "syspilot.setup"]``
-   * AC-3: PM frontmatter includes ``web``, ``github``, ``context7`` in tools
+   * AC-3: PM frontmatter includes ``web``, ``github``, ``context7``, ``syspilot_jarvis_tools`` in tools
 
 
 .. req:: Project Manager Prompt File
@@ -96,7 +96,7 @@ Project Manager Requirements
    :status: draft
    :priority: mandatory
    :tags: agent-v2, manager, pm, prompt
-   :links: SYSP_US_PM; SYSP_REQ_AGENT_ARCH_PROMPT
+   :links: SYSP_US_PM, SYSP_REQ_AGENT_ARCH_PROMPT
 
    **Description:**
    The Project Manager SHALL have a prompt file ``syspilot.pm.prompt.md`` that

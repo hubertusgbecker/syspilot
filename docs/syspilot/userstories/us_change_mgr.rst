@@ -23,14 +23,13 @@ Change Manager Agent
    details, it treats them as imprecise intent and works to clarify.
 
    **Duties:**
-   Der Change Manager ist verantwortlich für:
 
-   * die Übersetzung zwischen User-Intent (CR) und ausgeführter Spezifikations-Arbeit — kein Engineer wird mit Roh-Intent konfrontiert, kein User mit Engineer-Detail
-   * die Vollständigkeit der Pipeline — kein freigegebener Change verlässt CM ohne Spezifikation, Test-Artefakte, Implementierung, Quality Gates und Dokumentation
-   * die Trennung zwischen Engineers — keine Engineer-Session muss von einer anderen wissen
-   * die Nachvollziehbarkeit des Change-Verlaufs — das Change Document ist zu jedem Zeitpunkt der wahre Zustand, auch nach Abbruch
-   * die Wahrung der Merge-Authority — kein Merge nach ``development`` ohne explizite PM-Freigabe
-   * die Rückmeldung an PM nach Abschluss — kein Change verschwindet stillschweigend
+   * Translate user intent (CR) into executed specification work — no engineer receives raw intent, no user receives engineer detail
+   * Guarantee pipeline completeness — no approved change leaves CM without specification, test artifacts, implementation, quality gates, and documentation
+   * Keep engineers decoupled — no engineer session needs knowledge of another
+   * Maintain Change Document integrity — the Change Document reflects the true state at all times, including after abort or failure
+   * Uphold merge authority — no merge to ``development`` without explicit PM approval
+   * Report back to PM after completion — no change completes silently
 
    **Workflow (high-level):**
    Receive CR → Intent Gate → Change Document → System Designer → Test Engineer →

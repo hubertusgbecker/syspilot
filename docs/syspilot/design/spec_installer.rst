@@ -6,7 +6,7 @@ Installer Design
    :id: SYSP_SPEC_INSTALLER_SOUL
    :status: draft
    :tags: agent-v2, installer, soul
-   :links: SYSP_REQ_SETUP_INSTALLER_NOT_USER_INVOCABLE
+   :links: SYSP_REQ_INSTALLER_SOUL
 
    **Soul:**
 
@@ -22,9 +22,9 @@ Installer Design
 
 .. spec:: Installer Frontmatter
    :id: SYSP_SPEC_INSTALLER_FRONTMATTER
-   :status: draft
+   :status: approved
    :tags: agent-v2, installer, frontmatter
-   :links: SYSP_REQ_SETUP_INSTALLER_NOT_USER_INVOCABLE
+   :links: SYSP_REQ_INSTALLER_FRONTMATTER
 
    **Frontmatter Configuration:**
 

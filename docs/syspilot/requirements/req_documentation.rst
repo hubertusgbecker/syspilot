@@ -184,6 +184,7 @@ Requirements for external and internal documentation artifacts.
 .. req:: Copilot Instructions Template Guidance
    :id: SYSP_REQ_DOC_COPILOT_INSTRUCTIONS
    :status: approved
+   :priority: mandatory
    :tags: agent-v2, documentation, internal
    :links: SYSP_US_DOC_INTERNAL
 

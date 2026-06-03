@@ -20,56 +20,6 @@ Setup Manager Requirements
    * AC-2: Setup Bootloader is user-invocable
 
 
-.. req:: Installer Duties
-   :id: SYSP_REQ_INSTALLER_DUTIES
-   :status: draft
-   :priority: mandatory
-   :tags: agent-v2, installer, duties
-   :links: SYSP_US_INSTALLER
-
-   **Description:**
-   The Installer SHALL guarantee the following outcomes through its Duties.
-   The Installer's scope covers all syspilot product files NOT already placed
-   by the Bootloader via the bootstrap manifest.
-
-   **Acceptance Criteria:**
-
-   * AC-1: After every successful run, all syspilot product components are
-     complete and correctly placed in the target project
-   * AC-2: After an update, all local user-anpassungen (``tools:`` and other
-     customizations) are either preserved automatically or the user is
-     explicitly informed what needs re-applying
-   * AC-3: No installation run ends in a half-installed or unvalidated state —
-     the result always passes sphinx-build before being reported as successful
-   * AC-4: Every successful installation leaves a traceable Git commit
-   * AC-5: If a Skill belonging to an exclusive group is being installed and
-     a Skill of the same group already exists, the installation is rejected
-     with a conflict report
-
-
-.. req:: Installer Workflow
-   :id: SYSP_REQ_INSTALLER_WORKFLOW
-   :status: draft
-   :priority: mandatory
-   :tags: agent-v2, installer, workflow
-   :links: SYSP_US_INSTALLER
-
-   **Description:**
-   The Installer agent SHALL follow a workflow from source detection
-   through installation to validation and commit.
-
-   **Acceptance Criteria:**
-
-   * AC-1: Workflow starts with detecting install source and mode
-   * AC-2: Installer checks dependencies (Python, Sphinx, sphinx-needs)
-   * AC-3: Installer installs/updates files and configures the project
-   * AC-4: Installer validates with sphinx-build and creates baseline commit
-   * AC-5: When installed version equals source version, Installer asks user for reinstall confirmation; if declined, aborts gracefully
-   * AC-6: Before overwriting files in update mode, Installer asks user whether customizations exist; if yes, records the list and reminds user to re-apply them after the update completes
-   * AC-7: During update, Installer SHALL detect the existing ``tools:``
-     value in each installed agent file before overwriting it, and re-inject
-     the saved value after copying from product source
-
 .. req:: Bootloader Duties
    :id: SYSP_REQ_SETUP_BOOTLOADER_DUTIES
    :status: draft
@@ -98,7 +48,7 @@ Setup Manager Requirements
    :status: approved
    :priority: mandatory
    :tags: agent-v2, manager, setup, frontmatter
-   :links: SYSP_US_SETUP; SYSP_REQ_AGENT_ARCH_FRONTMATTER
+   :links: SYSP_US_SETUP, SYSP_REQ_AGENT_ARCH_FRONTMATTER
 
    **Description:**
    The Setup Manager agent SHALL be configured with YAML Agent Frontmatter that
@@ -117,7 +67,7 @@ Setup Manager Requirements
    :status: draft
    :priority: mandatory
    :tags: agent-v2, manager, setup, prompt
-   :links: SYSP_US_SETUP; SYSP_REQ_AGENT_ARCH_PROMPT
+   :links: SYSP_US_SETUP, SYSP_REQ_AGENT_ARCH_PROMPT
 
    **Description:**
    The Setup Manager SHALL have a prompt file ``syspilot.setup.prompt.md`` that
@@ -148,6 +98,165 @@ Setup Manager Requirements
 
 
 .. req:: Bootloader Invoke Installer
+   :id: SYSP_REQ_SETUP_BOOTLOADER_INVOKE
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, manager, setup, bootloader
+   :links: SYSP_US_SETUP
+
+   **Description:**
+   The Setup Bootloader SHALL invoke the fetched Installer as a subagent,
+   passing through the user's original request context.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Bootloader invokes Installer via runSubagent()
+   * AC-2: Bootloader passes user context to Installer subagent
+
+
+.. req:: Bootloader Version Gate
+   :id: SYSP_REQ_SETUP_BOOTLOADER_VERSION
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, manager, setup, bootloader
+   :links: SYSP_US_SETUP
+
+   **Description:**
+   The Setup Bootloader SHALL validate the ``bootstrap_version`` field in the
+   upstream manifest. If the manifest version exceeds the Bootloader's supported
+   version, the Bootloader SHALL stop with a user-visible error message.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Bootloader extracts ``bootstrap_version`` from the manifest already fetched by the Bootloader Fetch step — no additional upstream read
+   * AC-2: If ``bootstrap_version`` > supported version, Bootloader displays a user-visible error and stops
+   * AC-3: Error message instructs user to update their Bootloader
+
+
+.. req:: Installer Soul
+   :id: SYSP_REQ_INSTALLER_SOUL
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, installer, soul
+   :links: SYSP_US_INSTALLER
+
+   **Description:**
+   The Installer agent (syspilot.installer) SHALL have a Soul that defines it as
+   thorough, methodical, and user-friendly in reporting. It never leaves a broken
+   state and validates every installation before reporting success.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Installer Soul defines a thorough, methodical character
+   * AC-2: Installer always validates with sphinx-build before reporting success
+   * AC-3: Installer never leaves a half-installed or unvalidated state
+
+
+.. req:: Installer Frontmatter Configuration
+   :id: SYSP_REQ_INSTALLER_FRONTMATTER
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, installer, frontmatter
+   :links: SYSP_US_INSTALLER, SYSP_REQ_AGENT_ARCH_FRONTMATTER
+
+   **Description:**
+   The Installer agent SHALL be configured with YAML frontmatter that declares it
+   as a non-user-invocable subagent with read, edit, search, execute, and todo
+   tools, and an empty agents list.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Installer frontmatter declares ``user-invocable: false``
+   * AC-2: Installer frontmatter lists ``agents: []``
+   * AC-3: Installer frontmatter includes ``read``, ``edit``, ``search``, ``execute``, ``todo`` in tools
+   * AC-4: Installer agent documentation states it is invoked by Bootloader only
+
+
+.. req:: Installer Duties
+   :id: SYSP_REQ_INSTALLER_DUTIES
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, installer, duties
+   :links: SYSP_US_INSTALLER
+
+   **Description:**
+   The Installer SHALL guarantee the following outcomes through its Duties.
+   The Installer's scope covers all syspilot product files NOT already placed
+   by the Bootloader via the bootstrap manifest.
+
+   **Acceptance Criteria:**
+
+   * AC-1: After every successful run, all syspilot product components are
+     complete and correctly placed in the target project
+   * AC-2: After an update, all local user customizations (``tools:`` and other
+     customizations) are either preserved automatically or the user is
+     explicitly informed what needs re-applying
+   * AC-3: No installation run ends in a half-installed or unvalidated state —
+     the result always passes sphinx-build before being reported as successful
+   * AC-4: Every successful installation leaves a traceable Git commit
+
+
+.. req:: Installer Workflow
+   :id: SYSP_REQ_INSTALLER_WORKFLOW
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, installer, workflow
+   :links: SYSP_US_INSTALLER
+
+   **Description:**
+   The Installer agent SHALL follow a workflow from source detection
+   through installation to validation and commit.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Workflow starts with detecting install source and mode
+   * AC-2: Installer checks dependencies (Python, Sphinx, sphinx-needs)
+   * AC-3: Installer installs/updates files and configures the project
+   * AC-4: Installer validates with sphinx-build and creates baseline commit
+   * AC-5: When installed version equals source version, Installer asks user for reinstall confirmation; if declined, aborts gracefully
+   * AC-6: Before overwriting files in update mode, Installer asks user whether customizations exist; if yes, records the list and reminds user to re-apply them after the update completes
+   * AC-7: During update, Installer SHALL detect the existing ``tools:``
+     value in each installed agent file before overwriting it, and re-inject
+     the saved value after copying from product source
+
+
+.. req:: Installer Not User-Invocable
+   :id: SYSP_REQ_SETUP_INSTALLER_NOT_USER_INVOCABLE
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, manager, setup, installer
+   :links: SYSP_US_INSTALLER
+
+   **Description:**
+   The Installer agent SHALL NOT be directly user-invocable. It is an internal
+   subagent invoked exclusively by the Bootloader.
+
+   **Note:** This requirement is superseded by ``SYSP_REQ_INSTALLER_FRONTMATTER``
+   which covers the full frontmatter contract. This item is retained for traceability.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Installer frontmatter declares ``user-invocable: false``
+   * AC-2: Installer agent documentation states it is invoked by Bootloader only
+
+
+.. req:: Setup Agent Skill Mutual Exclusion
+   :id: SYSP_REQ_SETUP_SKILL_MUTEX
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, manager, setup, skill, mutex
+   :links: SYSP_US_INSTALLER
+
+   **Description:**
+   The Setup Agent SHALL reject installation of a Skill that declares a ``group:``
+   field when a Skill belonging to the same group is already installed, and SHALL
+   report the conflict to the user.
+
+   **Acceptance Criteria:**
+
+   * AC-1: Before installing a Skill with a ``group:`` field, Setup Agent checks whether any installed Skill declares the same ``group:`` value
+   * AC-2: If a conflicting Skill is found, Setup Agent aborts the installation and reports the conflict, naming the conflicting Skill
+   * AC-3: If no conflicting Skill is found, installation proceeds normally
    :id: SYSP_REQ_SETUP_BOOTLOADER_INVOKE
    :status: draft
    :priority: mandatory

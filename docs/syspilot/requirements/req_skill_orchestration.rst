@@ -76,4 +76,4 @@ Requirements for agent orchestration patterns.
    * AC-2: Completion reports include commit hashes when commits were made
    * AC-3: Completion reports include a summary of what was done
    * AC-4: Completion reports include any issues or follow-up items found
-   * AC-5: Reports are sent via ``jarvis_sendToSession``
+   * AC-5: Reports are delivered to the receiving manager session; inter-manager reports use the Jarvis messaging tool (``syspilot_jarvis_tools``)

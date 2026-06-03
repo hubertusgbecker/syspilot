@@ -22,12 +22,18 @@ This section contains user stories that drive the requirements.
    us_quality_trace
    us_release_engineer
    us_setup_engineer
+   us_installer
    us_verify_engineer
 
    us_skill_ask_questions
    us_skill_orchestration
    us_skill_branching
    us_skill_impact
+
+   us_jarvis
+   us_schema_check
+
+   us_documentation
 
    us_documentation
 

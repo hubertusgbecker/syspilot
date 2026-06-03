@@ -55,6 +55,3 @@ Requirements for the impact analysis skill.
      SHALL reside in the skill folder, so that replacing the folder is the complete swap operation.
      Scripts SHALL be placed in a named subdirectory (e.g. ``scripts/``), not directly at the
      skill root
-   * AC-5: The change process (Design Agent, Implement Agent) SHALL operate exclusively on the
-     ``syspilot/`` and ``docs/`` directories. The ``.github/`` directory is the installed instance
-     of syspilot and SHALL be maintained exclusively by the Setup Agent

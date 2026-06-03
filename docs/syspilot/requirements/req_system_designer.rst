@@ -43,6 +43,26 @@ System Designer Requirements
    * AC-5: In user-guided mode, no level transition occurs without explicit user confirmation — the designer never proceeds silently
 
 
+.. req:: System Designer Scope Constraint
+   :id: SYSP_REQ_DESIGN_SCOPE
+   :status: approved
+   :priority: mandatory
+   :tags: agent-v2, engineer, design, constraint
+   :links: SYSP_US_DESIGN
+
+   **Description:**
+   The System Designer and Dev Engineer SHALL operate exclusively on the
+   ``syspilot/`` and ``docs/`` directories. The ``.github/`` directory is
+   the installed instance of syspilot and SHALL be maintained exclusively
+   by the Setup Agent.
+
+   **Acceptance Criteria:**
+
+   * AC-1: System Designer only writes RST files to ``docs/syspilot/`` directories
+   * AC-2: Dev Engineer only modifies files in ``syspilot/`` and ``docs/``
+   * AC-3: Neither agent creates, modifies, or deletes files in ``.github/``
+
+
 .. req:: System Designer Workflow
    :id: SYSP_REQ_DESIGN_WORKFLOW
    :status: draft
@@ -68,7 +88,7 @@ System Designer Requirements
    :status: approved
    :priority: mandatory
    :tags: agent-v2, engineer, change, frontmatter
-   :links: SYSP_US_DESIGN; SYSP_REQ_AGENT_ARCH_FRONTMATTER
+   :links: SYSP_US_DESIGN, SYSP_REQ_AGENT_ARCH_FRONTMATTER
 
    **Description:**
    The System Designer agent SHALL be configured with YAML frontmatter that

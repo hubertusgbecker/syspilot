@@ -6,7 +6,7 @@ Requirements for the Git branching strategy.
 
 .. req:: Development Integration Branch
    :id: SYSP_REQ_SKILL_BRANCHING_CHAINED
-   :status: draft
+   :status: approved
    :priority: mandatory
    :tags: agent-v2, skill, branching, workflow
    :links: SYSP_US_SKILL_BRANCHING

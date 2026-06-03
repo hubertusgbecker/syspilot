@@ -11,19 +11,20 @@ Documentation Engineer Agent
 
    **As a** syspilot user,
    **I want** my agentic managers to have a Documentation Engineer agent (syspilot.docu) that keeps
-   both internal and external documentation in sync with the codebase,
-   **so that** copilot-instructions.md, README, methodology docs, and other
-   project documentation always reflect the current state of the project.
+   the copilot-instructions, README, and other project documentation in sync with the codebase,
+   **so that** all documentation reflects the current state of the project at all times.
 
    **Context:**
 
-   The Documentation Engineer replaces the former Memory Agent. It has two
-   duty areas:
+   The Documentation Engineer updates two categories of documentation:
 
-   * **Internal docs**: copilot-instructions.md, context.md, naming conventions
-   * **External docs**: README, methodology, release notes, architecture, workflows
+   * **Internal docs**: ``copilot-instructions.md`` and context files read by AI agents
+   * **External docs**: README, methodology, architecture, workflows, naming conventions
 
-   Same soul ("keep docs in sync with reality"), different duties.
+   The boundary between this story and ``SYSP_US_DOC_EXTERNAL`` / ``SYSP_US_DOC_INTERNAL``
+   is intentional: those stories define *quality requirements for the artifacts themselves*
+   (what the content must cover). This story defines the *agent responsible for updating them*
+   (who performs the work and when).
 
    **Acceptance Criteria:**
 

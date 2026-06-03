@@ -22,13 +22,12 @@ Release Engineer Agent
    never rewrites history. When in doubt, it stops and asks.
 
    **Duties:**
-   Der Release Engineer ist verantwortlich für:
 
-   * die versionierte Markierung im Git-Tree, die den freigegebenen Zustand eindeutig identifizierbar macht (Tag)
-   * die Validität des released Stands gegenüber den Qualitätsgates — nichts wird released, das die Sphinx-Validierung nicht besteht
-   * die vollständige Nachvollziehbarkeit dessen, was in dieser Version steckt — kein Change-Dokument fehlt in der Archivierung, Release Notes spiegeln vollständig wider was archiviert wurde
-   * die konsistente Versions-Identität über alle Quellen hinweg — Frontmatter, Tag, Release Notes referenzieren dieselbe Version
-   * die Trennschärfe zwischen Entwicklungslinie und freigegebener Linie — nach einem Release gibt es keinen Halbzustand zwischen ``development`` und ``main``
+   * Create a versioned Git tag that uniquely identifies the released state
+   * Guarantee quality gate validity — nothing is released that does not pass Sphinx validation
+   * Ensure complete release traceability — every change document is archived and every archived document is reflected in the release notes
+   * Maintain consistent version identity across all sources — frontmatter, tag, and release notes all reference the same version
+   * Enforce branch separation — after a release, there is no half-state between ``development`` and ``main``
 
    **Workflow (high-level):**
    Archive change docs → version bump → release notes → validate →
@@ -43,3 +42,7 @@ Release Engineer Agent
    4. Given a release, When archiving change documents, Then ALL ``*.md`` files in ``docs/changes/`` (root level only, excluding subdirectories) are moved — no document is missed
    5. Given a release, When generating release notes, Then the release notes are generated from the archived change documents in ``docs/changes/<version>/`` and list every archived document completely
    6. Given a tag is pushed, When the release completes, Then a GitHub Release exists for that tag
+
+   **Orchestration:**
+   The Release Engineer is invoked by the Project Manager (``syspilot.pm``) after
+   PM evaluates readiness and decides release criteria are met.

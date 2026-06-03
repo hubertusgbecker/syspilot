@@ -64,10 +64,10 @@ Verify Engineer Requirements
 
 .. req:: Verify Engineer Frontmatter Configuration
    :id: SYSP_REQ_VERIFY_FRONTMATTER
-   :status: draft
+   :status: approved
    :priority: mandatory
    :tags: agent-v2, engineer, verify, frontmatter
-   :links: SYSP_US_VERIFY; SYSP_REQ_AGENT_ARCH_FRONTMATTER
+   :links: SYSP_US_VERIFY, SYSP_REQ_AGENT_ARCH_FRONTMATTER
 
    **Description:**
    The Verify Engineer agent SHALL be configured with YAML frontmatter that

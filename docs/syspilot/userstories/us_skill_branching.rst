@@ -11,9 +11,9 @@ Git branching rules for syspilot agents.
    :tags: agent-v2, skill, branching, workflow
    :links: SYSP_US_SKILL_ARCH
 
-   **As a** syspilot agent,
-   **I want** clear branching rules,
-   **so that** I know where to commit and what branches to create.
+   **As a** syspilot user,
+   **I want** all syspilot agents to follow clear, uniform branching rules,
+   **so that** the Git history stays clean and no agent commits to the wrong branch.
 
    **Context:**
 

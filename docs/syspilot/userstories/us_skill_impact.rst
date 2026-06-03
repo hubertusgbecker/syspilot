@@ -9,12 +9,13 @@ Impact analysis for specification elements.
    :status: draft
    :priority: mandatory
    :tags: agent-v2, skill, impact, traceability
-   :links: SYSP_US_DESIGN; SYSP_US_PM; SYSP_US_SKILL_ARCH
+   :links: SYSP_US_DESIGN, SYSP_US_SKILL_ARCH
 
-   **As a** System Designer,
-   **I want** a skill that provides impact analysis for Need elements,
-   **so that** I can see the complete dependency tree before starting my analysis
-   — and the underlying tool can be swapped without changing my workflow.
+   **As a** syspilot user,
+   **I want** the System Designer agent to have an exchangeable impact analysis skill,
+   **so that** every change request is analyzed against the full dependency tree
+   before any specification work begins — regardless of which tool implements
+   the analysis underneath.
 
    **Context:**
 
