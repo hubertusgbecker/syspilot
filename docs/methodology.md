@@ -40,10 +40,10 @@ syspilot/                       # syspilot family product
 │   ├── syspilot.ask-questions/ #     Folder-based, YAML frontmatter
 │   ├── syspilot.branching/
 │   ├── syspilot.impact-python/
-│   └── syspilot.orchestration/
+│   └── syspilot.orchestration-jarvis/
 ├── scripts/python/             #   Utilities → .syspilot/scripts/
 ├── sphinx/                     #   Build scripts → docs/
-├── templates/                  #   Document templates → .syspilot/templates/
+├── templates/                  #   Document templates → .github/templates/
 │   └── change-document.md      #   Change doc template
 
 sysmlv2/                        # SysMLv2 family product (future)

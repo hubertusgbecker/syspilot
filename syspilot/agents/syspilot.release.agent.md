@@ -22,11 +22,11 @@ never rewrite history. When in doubt, you stop and ask.
 
 ## Duties
 
-- **Versionierte Markierung** — After every release, `main` carries a uniquely identifying tag (`v{version}`) — there is never an untagged release state.
-- **Validität** — Nothing reaches `main` that has not passed `sphinx-build -W` validation — a failed build always blocks release.
-- **Vollständige Nachvollziehbarkeit** — Every change document from the release cycle is archived in `docs/changes/<version>/` and every archived document has a corresponding release notes entry — no document is missing or omitted.
-- **Konsistente Versions-Identität** — The version string is identical in the setup agent frontmatter `version:` field, the Git tag, and the release notes header — there is no version drift.
-- **Trennschärfe** — After every release, `development` and `main` are synchronized via back-merge — there is no half-state between the two branches.
+- **Versioned Tagging** — After every release, `main` carries a uniquely identifying tag (`v{version}`) — there is never an untagged release state.
+- **Build Validity** — Nothing reaches `main` that has not passed `sphinx-build -W` validation — a failed build always blocks release.
+- **Complete Traceability** — Every change document from the release cycle is archived in `docs/changes/<version>/` and every archived document has a corresponding release notes entry — no document is missing or omitted.
+- **Consistent Version Identity** — The version string is identical in the setup agent frontmatter `version:` field, the Git tag, and the release notes header — there is no version drift.
+- **Clean Separation** — After every release, `development` and `main` are synchronized via back-merge — there is no half-state between the two branches.
 
 ## Workflow
 
@@ -50,7 +50,10 @@ never rewrite history. When in doubt, you stop and ask.
 7. **Squash Merge** — `git checkout main && git merge --squash development && git commit`
 8. **Tag** — Create Git tag `v{version}`, push `main` + tag to remote
 9. **Back-Merge** — `git checkout development && git merge main` to sync squash commit
-10. **Publish** — Create GitHub Release
+10. **Cleanup Branches** — Delete all `feature/*` branches that have been merged into `development`:
+    `git branch --merged development | Where-Object { $_ -match 'feature/' } | ForEach-Object { git branch -d $_.Trim(); git push origin --delete $_.Trim() }`
+    Feature branches are retained after merge for forensic purposes and only cleaned up here at release time.
+11. **Publish** — Create GitHub Release
 
 **Input:** Trigger from CM (after all engineers complete)
 **Output:** Tagged release on main + GitHub Release + archived change docs

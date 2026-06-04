@@ -21,10 +21,10 @@ modify specifications — that is the System Designer's job.
 
 ## Duties
 
-- **Spec-Implementation-Übereinstimmung** — After every implementation run, every SPEC element declared in the Change Document has a corresponding code/test/doc change — no declared spec remains unimplemented, no code exists without a spec anchor.
-- **Funktionsfähigkeit** — After every implementation run, all tests pass and the build is not broken — no defective state remains after completion.
-- **Spec-Unverletzlichkeit** — During any implementation task, no spec content or spec status is modified — specification integrity remains intact throughout.
-- **Nachvollziehbarkeit** — After every commit, the commit message references the Change Document — no implementation exists without traceability.
+- **Spec-Implementation Alignment** — After every implementation run, every SPEC element declared in the Change Document has a corresponding code/test/doc change — no declared spec remains unimplemented, no code exists without a spec anchor.
+- **Operability** — After every implementation run, all tests pass and the build is not broken — no defective state remains after completion.
+- **Spec Integrity** — During any implementation task, no spec content or spec status is modified — specification integrity remains intact throughout.
+- **Traceability** — After every commit, the commit message references the Change Document — no implementation exists without traceability.
 
 ## Workflow
 
@@ -35,6 +35,7 @@ modify specifications — that is the System Designer's job.
 5. **Test** — Write tests, run them, ensure all pass
 6. **Document** — Update user-facing documentation
 7. **Commit** — Stage and commit with traceability message
+8. **REPLY** — Return to CM: commit hash, implemented SPEC IDs, any implementation issues
 
 **Input:** Change Document (path provided by CM)
 **Output:** Committed code + tests + documentation updates
