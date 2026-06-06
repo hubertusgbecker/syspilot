@@ -48,14 +48,14 @@ Setup Manager Design
    **Workflow:**
 
    1. **Fetch Manifest** — Fetch ``syspilot/bootstrap.json`` from
-      ``https://raw.githubusercontent.com/enthali/syspilot/main/syspilot/bootstrap.json``
+      ``https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/bootstrap.json``
    2. **Validate Version** — Read ``bootstrap_version`` from manifest.
       If ``bootstrap_version`` > 1 (supported version), display user-visible error:
       "Your Bootloader is outdated. Please update syspilot.setup.agent.md from upstream."
       and stop.
    3. **Fetch and Install Files** — Iterate over the ``files[]`` array in the manifest.
       For each entry, construct the URL
-      ``https://raw.githubusercontent.com/enthali/syspilot/main/<source>``
+      ``https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/<source>``
       and write the fetched content to ``<workspace>/<destination>/<filename>``.
       Files are fetched unconditionally on every run — no local cache is consulted.
       The manifest SHALL contain exactly one ``.agent.md`` entry which identifies
