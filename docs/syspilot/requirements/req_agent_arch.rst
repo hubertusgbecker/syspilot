@@ -189,6 +189,13 @@ Meta-level requirements defining the Soul/Duties/Workflow structure.
    tailoring file. The file is instance-only: setup ships ``*.agent.md`` and
    never ``*.tailoring.md``, so product updates never overwrite it.
 
+   Because VS Code detects any ``.md`` file placed in ``.github/agents/`` as a
+   selectable custom agent, every tailoring file SHALL begin with YAML
+   frontmatter declaring ``user-invocable: false`` and
+   ``disable-model-invocation: true``, so it is colocated with its agent for
+   the Installer's orphan-cleanup exemption without appearing in the agent
+   picker or being invocable as a subagent.
+
    **Rationale:**
    Separating generic method (in the agent, product) from project-specific
    detail (in the tailoring file, instance) lets the same agent run across
