@@ -1,5 +1,549 @@
 # syspilot Release Notes
 
+> **Versioning scheme:** syspilot uses Semantic Versioning (semver,
+> `MAJOR.MINOR.PATCH`) as of v0.8.0. The `v2026.06.19` (CalVer) release is
+> relabeled `v0.7.0` in the archive/changelog to keep the version sequence
+> consistent; CalVer was a brief interlude, reverted per the Release Agent
+> Tailoring Workflow (see `release-agent-tailoring-semver`).
+
+## v0.9.1 - 2026-08-01
+
+### Summary
+
+Patch release: dark-mode fix for sphinx-needs panels, PM branch-retention policy update, and two field notes (North Star workflow-less actors, Contract Document pattern generalization).
+
+### 🔧 Fixes
+
+- **Dark mode panels** (#36) — sphinx-needs panel styling now readable in dark VS Code themes
+
+### 📝 Docs & Process
+
+- **PM branch retention override** — project tailoring updated to delete merged feature branches from origin after release (retroactive cleanup of 19 stale remote branches performed 2026-08-01)
+- **North Star field note** — captures the workflow-less actor architecture direction (`docs/experiences/north-star-workflow-less-actors.md`)
+- **Contract Document pattern** — generalizes the Change Document concept; field note updated
+
+## v0.9.0 - 2026-07-31
+
+### Summary
+
+Minor release delivering two new capabilities: Ontology Phase 2 enriches the single-master `.syspilot/ontology.toml` with actor catalogue, typed link relationships, lifecycle state machine, TEST-type split, and a build-time ontology reference page; the Change Launcher skill automates the four mechanical PM steps at the start of every change initiative (branch creation, CD template copy, header pre-fill, initial commit).
+
+### 🏗️ Ontology Phase 2 (`ontology-phase2`, #54)
+
+- **Actor catalogue** — `[syspilot.actors]` maps each Need type to its owning actor; framed for agent-readable routing, not only human reference
+- **Typed link relationships** — `[syspilot.type_links]` defines explicit bottom-up relationships (provides / refines / implements / validates / verifies / defines); `[[needs.extra_links]]` adds typed link fields additively with `:links:` kept as a generic fallback — no breaking change, no forced migration
+- **TEST type split** — single `TEST_` type split into `uat` (UAT\_), `test` (TEST\_), `unit_test` (UNIT\_); `TEST_` kept as a deprecated alias for organic migration
+- **Lifecycle state machine** — `[syspilot.status_transitions]` captures allowed state transitions, owned by System Designer
+- **Ontology reference page** — generated at sphinx build time by a `conf.py` hook: type catalogue table + Mermaid type-relationship diagram + Mermaid lifecycle diagram, always in sync with the master; generated file gitignored
+- New US: `SYSP_US_ONTOLOGY_ACTOR_CATALOG`, `SYSP_US_ONTOLOGY_TYPE_LINKS`, `SYSP_US_ONTOLOGY_LIFECYCLE`, `SYSP_US_ONTOLOGY_REF_PAGE`, `SYSP_US_ONTOLOGY_TYPE_SPLIT`
+
+### 🚀 Change Launcher Skill (`chg-launcher`, #61)
+
+- **`syspilot.change-launcher` skill** — Python script (`launch_change.py`) + `SKILL.md` under `syspilot/skills/syspilot.change-launcher/`, installed by the Setup Agent
+- Automates the four deterministic PM steps: create feature branch from `development`, copy CD template, pre-fill five header fields (Status, Branch, Created, Author, Operation Mode), make initial commit
+- Preconditions validated with clear exit codes: branch-already-exists → warn + continue (not a failure); CD already exists or template missing → exit 1
+- PM can immediately focus on the Summary section — the only part requiring human judgment
+- New spec chain: `SYSP_US_CHG_LAUNCHER` → `SYSP_REQ_CHG_LAUNCHER` → `SYSP_SPEC_CHG_LAUNCHER`; UAT chain with 5 scenarios covering all 9 ACs
+
+## v0.8.2 - 2026-07-23
+
+### Summary
+
+Minimal patch adding `enthali.jarvis-syspilot` to the Setup Bootloader `tools:` frontmatter. Enables Jarvis-syspilot integration tools (automated update notifications, skip/delay) for the Setup Bootloader session. No spec changes, no API changes, no breaking changes.
+
+### 🔧 Infrastructure
+
+- **Setup Bootloader tools group** — Added `enthali.jarvis-syspilot` to the `tools:` list in `syspilot/agents/syspilot.setup.agent.md`. Infrastructure change, QM-cleared, no tracked issue.
+
+## v0.8.1 - 2026-07-22
+
+### Summary
+
+Patch release delivering Jarvis API compatibility (tool renames, actor scaffolding), the ontology infrastructure foundation (Phase 0 ADR + Phase 1 flat single-master), strict release-notes ownership separation, and several traceability and spec hygiene fixes. No breaking changes; no agent contract changes.
+
+### 🔧 Fixes & Compatibility
+
+- **Jarvis API sync** (`jarvis-api-update`, #58)
+  - Renamed `jarvis_sendToSession` → `jarvis_sendMessage` and `jarvis_readMessage` → `jarvis_receiveMessage` across all specs, skills, and docs
+  - Setup Bootloader `tools:` frontmatter switched to compact group-based notation (`enthali.jarvis-core`, `enthali.jarvis-syspilot`)
+  - Installer Step 9 now calls `jarvis_createActor` with three-way idempotency check instead of manual session.yaml file scaffolding; legacy `.jarvis/sessions/` detection with user warning
+
+### 🏗️ Ontology Infrastructure
+
+- **Ontology-Agnostic Architecture ADR** (`ontology-architecture-decision`, #49)
+  - Phase 0 architecture decision: syspilot separates Ontology / Capabilities / Actors / Process as four clean concerns
+  - `syspilot.toml` established as single source of truth for ontology selection; `conf.py` is an adapter/consumer, not an authority
+  - New spec elements: `SYSP_US_ONTOLOGY_ARCH`, `SYSP_US_ONTOLOGY_TEMPLATES` and full L1/L2 chain anchoring `.syspilot/` directory structure and `ontology.toml` schema
+  - Pure architecture documentation; no agent or code changes
+
+- **Ontology Phase 1 — flat single-master** (`ontology-phase1`, #53)
+  - `.syspilot/ontology.toml` established as the single canonical master read directly by sphinx-needs (no generated projection file, no intermediate step)
+  - `syspilot.ontology` skill added for System Designer: schema documentation, consumer convention (sphinx-needs reads `[needs]` table, ignores `[syspilot.*]` siblings), and governance guardrail (guarded artifact, additive/breaking change classification, migration-CR requirement)
+  - Generator and projection step removed as over-engineering: the failure mode they guarded (two-file drift) is eliminated by construction
+  - `sphinx-build -W` now validates the master directly every CR — earlier and stronger gate than release-time
+
+### 📐 Spec & Process
+
+- **Spec-Root-Cause Principle** (`spec-root-cause-principle`, `val-spec-root-cause-principle`, #46)
+  - Formalizes: code-level defects are spec-layer gaps first — agents must trace upward before classifying as implementation slip
+  - QM gains a verification duty: trace defect to spec layer before classification
+  - Dev Engineer gains an escalation guardrail: reject patches that diverge from an approved spec; escalate for spec correction instead
+  - Verified by Verify Engineer; traceability chain complete end-to-end
+
+- **Release Notes ownership separation** (`releasenotes-ownership`, #50)
+  - Documentation Engineer no longer writes to `docs/releasenotes.md` during a change pipeline
+  - Release Engineer is now the sole writer; eliminates the mid-change speculative version-number problem
+  - `SYSP_SPEC_DOC_RELEASENOTES` ownership made unambiguous
+
+### 🧹 Hygiene
+
+- **Workflow-REQ traceability links** (`hygiene-workflow-req-links`, #41)
+  - All per-agent `SYSP_REQ_*_WORKFLOW` requirements now carry `:links:` to `SYSP_REQ_AGENT_ARCH_WORKFLOW`
+  - Closes gap discovered during `generic-agent-workflow-pattern` CR; consistent with frontmatter REQs fixed earlier
+
+- **Orchestration-Jarvis skill simplified** (`simplify-orchestration-jarvis-skill`, #47)
+  - Removed runtime RESPOND mode-detection logic from `syspilot.orchestration-jarvis` SKILL.md (variant determines mode statically at install time)
+  - Removed `agents:`/`runSubagent` exception section (belongs in Setup Bootloader's own spec, not a shared skill)
+  - Traceability header prose moved to YAML frontmatter; skill body now contains only SEND/RECEIVE/RESPOND definitions and tool-call syntax
+
+## v0.8.0 - 2026-07-03
+
+### Summary
+
+Major release delivering the session-first async orchestration architecture, retiring the per-agent `tools:` frontmatter model in favor of inheritance from the user's default VS Code agent, introducing the Release Agent Tailoring Workflow (with reversion to semver), and closing several critical Installer defects (frontmatter sync, orchestration variant selection, skill mutex, Jarvis session scaffolding) ahead of a partner demo. Also includes branching/naming and duties-translation hygiene fixes.
+
+> **Upgrade note (remove-tools-frontmatter):** `tools:` frontmatter is no longer prescribed for any agent except the Setup Bootloader. Agents now inherit whatever tools are enabled on the user's default VS Code agent — ensure `enthali.jarvis-core` is enabled there for orchestration to work.
+
+> **Upgrade note (installer-frontmatter-sync / installer-orchestration-select):** Re-run `@syspilot.setup` after upgrading to pick up the corrected Installer workflow (verbatim frontmatter sync, orchestration variant selection, skill mutex, and session scaffolding for the async variant).
+
+### 🏗️ Architecture
+
+- **Session-First Async Orchestration** (`session-first-orchestration`)
+  - Flips syspilot's orchestration default from synchronous `runSubagent` to asynchronous Jarvis-session messaging; every orchestrating agent runs as its own persistent Jarvis session with its own `context.md`
+  - Three-verb group contract (SEND/RECEIVE/RESPOND, peer-to-peer, role-agnostic); INVOKE dropped — synchronous dispatch is just SEND under the sync variant
+  - New `syspilot.orchestration-subagent` skill (sync variant, `runSubagent`-only) completes the exchangeable orchestration-skill group alongside `syspilot.orchestration-jarvis`
+  - Bootstrap (Setup → Installer) is explicitly outside the orchestration contract — a plain in-process `runSubagent` call
+  - Every agent file gains `name:`/`agent:` session-identity frontmatter and `user-invocable: true` (Setup/Installer excluded)
+  - Design completed end-to-end in this CR; carried through Implementation/UAT by the follow-up `installer-orchestration-select` CR
+
+- **Generic Agent Workflow Pattern** (`generic-agent-workflow-pattern`)
+  - New architecture pattern: every customizable agent's Workflow begins with a
+    Preflight block directing it to read `syspilot.<name>.tailoring.md`
+  - Three states: missing → agent RESPONDs to PM (or PM runs Tailoring Workflow);
+    empty → proceed generic; present → use project-specific overrides
+  - `SYSP_SPEC_AGENT_ARCH_WORKFLOW` updated with Tailoring File property and
+    canonical Implementation Template (preflight sentence form)
+  - PM agent gains a dedicated **Tailoring Workflow** (detect → interview → author
+    → resume) triggered when any agent reports a missing tailoring file
+  - Product/instance boundary enforced: Setup ships `*.agent.md`, never
+    `*.tailoring.md`; existing tailoring files survive updates unchanged
+
+- **PM Agent Genericised** (`generic-agent-workflow-pattern`)
+  - `syspilot.pm.agent.md` Duties and Workflow rewritten to contain zero
+    project-specific nouns
+  - Duties: branch creation and merge reference `syspilot.branching` skill;
+    post-release distribution is a generic duty resolved by tailoring
+  - Workflow: single Main lifecycle (17 steps, 3 phases: Initiate/Review/Release)
+    replaces the previous 3-workflow structure (Main + QM Review + Release);
+    Tailoring Workflow added as a separate flow
+  - `syspilot.pm.tailoring.md` added as the syspilot dogfooding instance:
+    `experimental` branch base, `docs/changes/` path, GitHub Issues backlog,
+    Setup Agent post-release
+
+- **Release Agent Tailoring + Semver Reversion** (`release-agent-tailoring-semver`)
+  - Release Engineer gains the same Preflight/Tailoring Workflow pattern already used by PM — versioning scheme (and other release conventions) become per-project tailoring decisions instead of a product-wide prescription
+  - Root cause fixed: CalVer had silently applied to a customer project requiring semver for package packaging (GH #44)
+  - syspilot's own instance tailored back to semver; version now read from the latest `docs/changes/<version>/` archive folder (not syspilot's own framework version marker) — a category-error correction
+  - New generic **Skill Tailoring** capability (`tailoring.md` sibling file, no RESPOND-escalation, safe default) applied to the branching skill
+  - Feature-branch retention default flipped to **retain** (was delete); deletion is now an explicit tailoring opt-in
+  - `SYSP_SPEC_SKILL_BRANCHING_STRATEGY`'s "Workflow Sequence" section removed (agent-attributed sequencing is Agent-file territory, not Skill territory)
+
+- **Product Owns Tool Lists → Retired in Favor of Inheritance** (`product-owns-tool-lists`, `remove-tools-frontmatter`, `agent-spec-base-toolset-links`)
+  - `product-owns-tool-lists` first moved `tools:` ownership from per-installation customization to a product-prescribed base toolset (`SYSP_SPEC_AGENT_BASE_TOOLSET`) shared by all agent frontmatter specs, with `agent-spec-base-toolset-links` adding the missing `:links:` traceability from all 13 frontmatter specs to it
+  - `remove-tools-frontmatter` then retired that model entirely: the VS Code custom-agent tool picker proved unstable (enumerated tool lists silently rewritten/dropped independent of any syspilot action) — agents now inherit whatever tools are enabled on the user's default VS Code agent
+  - Setup Bootloader remains the sole exception, keeping an explicit `tools:` list (including `agent/runSubagent`) since its bootstrap call is structural, not a customization surface
+  - `SYSP_SPEC_AGENT_BASE_TOOLSET` removed; no dangling `:links:` remain
+
+### 🔧 Fixes & Improvements
+
+- **Installer Frontmatter Sync** (`installer-frontmatter-sync`)
+  - Critical pre-demo fix: `syspilot.installer.agent.md` Step 4 still described the old `tools:`-preservation logic, already superseded by `remove-tools-frontmatter`'s corrected spec — the live Installer contradicted its own already-fixed design
+  - Step 4 now matches `SYSP_SPEC_INSTALLER_WORKFLOW`: every file written verbatim from upstream, no local field preserved
+  - QM Round 1 also caught a stale "Local Customization Preservation" Duties bullet directly contradicting the corrected Step 4 in the same file — removed (Round 2: clean)
+
+- **Installer Orchestration Variant Selection** (`installer-orchestration-select`)
+  - Implements three specs designed but never carried through implementation by `session-first-orchestration` (GH #35): orchestration variant inference/selection from `.jarvis/` presence, generic Skill mutual-exclusion enforcement for any `group:`-declaring Skill, and Jarvis session scaffold creation for every eligible agent
+  - Fixes GH #48 (both orchestration Skills were being installed on every fresh install instead of exactly one) and GH #22 (no session scaffolds were ever created)
+  - `SYSP_SPEC_INSTALLER_DUTIES`'s "Skill Conflict Prevention" wording corrected: replace (not reject) the existing Skill of the same group
+
+- **Installer Scoped Cleanup** (`installer-scoped-cleanup`)
+  - Orphan-cleanup previously removed every file in `.github/agents/`, `.github/prompts/`, `.github/skills/` with no upstream source — silently deleting customer-owned and instance-only files (e.g. `*.tailoring.md`) on every update
+  - Orphan eligibility now requires the `syspilot.` filename prefix **and** not ending in `.tailoring.md` — customer files and tailoring files are preserved across updates
+
+- **Branching Naming Fix** (`branching-naming-fix`)
+  - `SYSP_REQ_SKILL_BRANCHING_NAMING` and `syspilot.branching`'s `SKILL.md` corrected: the stale `update/v{version}` pattern attributed to `@syspilot.setup` is removed — the Installer commits directly on the checked-out branch, no dedicated branch is created
+  - Trace Engineer's consistency-check duty extended (new Duty #6) to re-verify content against a modified element's *existing* links, not only newly-touched elements — closes the gap class that let this contradiction slip through undetected
+
+- **German Duties Translation** (`german-duties-fix`)
+  - Nine user story files' "Duties" sections translated from German to English, restoring language consistency (GH #37)
+  - QM Round 1: zero semantic drift, all traceability links intact, sphinx-build clean
+  - Several pre-existing structural gaps in the specification hierarchy (role ownership ambiguities, missing L0↔L1 uplinks) surfaced during review and recorded for future follow-up CRs — not fixed in this cycle
+
+### 📋 Specs
+
+- New user story `SYSP_US_CUSTOM_AGENT_WORKFLOWS` + AC-6 on `SYSP_US_AGENT_ARCH`
+- New requirement `SYSP_REQ_AGENT_WORKFLOW_BINDING` (tailoring file contract, 5 ACs)
+- `SYSP_REQ_PM_DUTIES` and `SYSP_REQ_PM_WORKFLOW` genericised; backlog ownership AC added
+- New `SYSP_REQ_SKILL_ARCH_TAILORING` and `SYSP_REQ_SKILL_BRANCHING_RETENTION` (default: retain)
+- UAT chains: `SYSP_US_UAT_GENERIC_AGENT_WORKFLOW` (6 scenarios), `SYSP_US_UAT_PM_GENERIC_WORKFLOW` (8 scenarios), `SYSP_US_UAT_RELEASE_TAILORING_SEMVER` (7 scenarios), `SYSP_US_UAT_REMOVE_TOOLS_FRONTMATTER` (5 scenarios), `SYSP_US_UAT_INSTALLER_ORCHESTRATION_SELECT` (3 scenarios), `SYSP_US_UAT_INSTALLER_SCOPED_CLEANUP` (3 scenarios), `SYSP_US_UAT_INSTALLER_FRONTMATTER_SYNC` (1 scenario), `SYSP_US_UAT_BRANCHING_NAMING_FIX` (4 scenarios)
+
+## v0.7.0 - 2026-06-19
+
+### Summary
+
+Patch release fixing agent frontmatter tool-token misuse that blocked the Setup Bootloader → Installer handoff at runtime. Switches syspilot versioning from semver to CalVer (`vYYYY.MM.DD`). Adds QM findings durability: findings and PM decisions are now recorded directly in the Change Document for post-release audit. Includes an unfinished draft CR for platform-independent build scripts (carried forward, not implemented this cycle).
+
+> **Upgrade note (agent-tool-token-fix):** Customers who installed syspilot under v0.6.0 may have the broken `agent` bare token in their `.github/agents/` files. Re-run `@syspilot.setup` after upgrading, or manually replace `agent` → `agent/runSubagent` in any installed agent files that use subagent invocation (setup, design, verify, cm, pm, qm).
+
+### 🔧 Fixes & Improvements
+
+- **Agent Tool Token Fix** (`agent-tool-token-fix`)
+  - Six agent files whose role includes subagent invocation carried the bare `agent` token instead of the specific `agent/runSubagent` token in their `tools:` frontmatter
+  - VS Code Copilot's tool-loader does not recognise the bare `agent` token as enabling subagent invocation — `runSubagent()` was silently unavailable at runtime, blocking the Setup Bootloader → Installer handoff discovered post-v0.6.0
+  - All six agents (`cm`, `design`, `pm`, `qm`, `setup`, `verify`) corrected to `agent/runSubagent`; seven agents without subagent invocation are untouched (AC2)
+  - Meta-spec `SYSP_SPEC_AGENT_ARCH_FRONTMATTER` updated to explicitly reject the bare `agent` token
+  - Two pre-existing SPEC/agent drift cases fixed: `SYSP_SPEC_VERIFY_FRONTMATTER` and `SYSP_SPEC_DESIGN_FRONTMATTER` now list `agent/runSubagent`
+  - sphinx-build -W: clean
+
+### 📋 Process & Tooling
+
+- **CalVer Release Versioning** (`calver-release-versioning`)
+  - syspilot switches from semver (`0.x.y`) to date-based versioning (CalVer, `vYYYY.MM.DD`) starting this release
+  - Eliminates the recurring subjective scope judgment (patch/minor/major) at release time — the version is simply the release date
+  - `SYSP_SPEC_RELEASE_WORKFLOW` Step 2 rewritten with CalVer format and same-day collision handling (`vYYYY.MM.DD.1`, `.2`, …)
+  - Release Agent mode instructions updated in parallel
+  - Naming conventions doc updated: SEMVER example comment corrected to "CalVer"
+  - Historic semver labels in older release notes entries retained as acceptable historic stranding
+
+- **QM Findings in Change Document** (`qm-findings-in-cd`)
+  - QM findings previously existed only in ephemeral Jarvis messages — once consumed, lost permanently
+  - `## QM Findings` section added to `syspilot/templates/change-document.md` with structured `### Round N` sub-sections for findings and PM decisions
+  - QM spec (duties + workflow) now requires writing findings into the CD section; PM spec requires recording fix/defer/accept-as-is decisions with rationale
+  - Multiple review rounds are supported by appending sub-sections; existing CDs without the section are unaffected
+  - Both the product template and the installed `.github/templates/` template updated immediately; this CR itself demonstrates the format in its own `## QM Findings` section
+  - QM Round 1 found three findings; Round 2 verified all clean; Closes GitHub issue #27
+
+### 📝 Draft / Carried Forward
+
+- **Platform-Independent Build Scripts** (`platform-independent-build`) — *status: draft, not implemented this cycle*
+  - CR proposes replacing the `docs/build.sh` + `docs/build.ps1` pair with a single cross-platform `docs/docs-build.py` script
+  - Not implemented in this release cycle; CR archived for reference
+
+## v0.6.0 - 2026-06-04
+
+### Summary
+Minor release completing the orchestration skill architecture and aligning all agents to the new four-verb vocabulary (INVOKE/SEND/RECEIVE/RESPOND). Introduces the `syspilot.orchestration-jarvis` skill variant, rewrites the Installer spec for customer-path correctness with positive scope definition, adds templates directory management, and establishes structural operation mode signalling in Change Documents. Includes a Field Notes documentation section, skill frontmatter conformance, and a requirements status sweep.
+
+### 🏗️ Architecture
+
+- **Orchestration Skill Split** (`orchestration-skill-split`)
+  - Monolithic `syspilot.orchestration` skill split into an orchestration skill group
+  - New Group Contract Spec (`SYSP_SPEC_SKILL_ORCHESTRATION_CONTRACT`) declares four-verb vocabulary: `INVOKE`, `SEND`, `RECEIVE`, `RESPOND` — tool-agnostic and topology-agnostic
+  - New `syspilot.orchestration-jarvis` skill variant implements INVOKE → `runSubagent()`, SEND/RECEIVE → Jarvis messaging tools, RESPOND → mode-detected delivery
+  - Old standalone `syspilot.orchestration` skill removed; all active references updated
+
+- **Orchestration Agent Adoption** (`orchestration-agent-adoption`)
+  - All syspilot agent files migrated from deprecated `DELEGATE` verb to `SEND`
+  - Agents performing cross-session communication now declare `skills: [syspilot.orchestration-jarvis]` in frontmatter
+  - No semantic change to agent behaviour — only vocabulary alignment
+
+- **Installer Spec Rewrite** (`installer-spec-rewrite`)
+  - Complete rewrite of `SYSP_SPEC_INSTALLER_SCOPE`, `SYSP_SPEC_INSTALLER_DUTIES`, and `SYSP_SPEC_INSTALLER_WORKFLOW` for customer-path correctness
+  - Scope table now includes `templates/` → `.github/templates/` as an explicit install target
+  - Three new Installer duties: **Idempotent Sync**, **Orphan Cleanup**, and **Observable Summary**
+  - Installer workflow gains an Orphan Cleanup step (removes target files with no source counterpart) and a per-directory Summary table output
+
+- **PM/CM Branch and Change Document Ownership** (`pm-owns-branch-and-change-setup`)
+  - PM creates feature branch from `development` and initialises Change Document via verbatim copy of `.github/templates/change-document.md`
+  - PM fills header and Summary sections only; CM fills engineering sections in-place on the existing skeleton — CM never invents document structure
+  - Integration to `development` is a PM-role responsibility; CM signals readiness but never merges
+  - Feature branches retained after merge; Release Agent performs cleanup at release time
+  - Templates reside at `.github/templates/` — present in every installed instance
+
+### 🔧 Fixes & Improvements
+
+- **Orchestration Skill Fix** (`orchestration-skill-fix`)
+  - Three post-merge defects corrected in `syspilot.orchestration-jarvis` SKILL.md
+  - `description` frontmatter rewritten to Copilot discovery format with USE FOR / DO NOT USE FOR boundaries
+  - RESPOND logic corrected: no longer incorrectly calls `jarvis_readMessage()` inside RESPOND; uses invocation mode already determined at RECEIVE time
+  - Role-specific communication pattern sections removed from skill body (violated the no-agent-names AC-4 rule)
+
+- **Operation Mode Signalling** (`operation-mode-signalling`)
+  - Structural `Operation Mode:` header field added to the Change Document template
+  - Allowed values: `autonomous` | `user-guided`
+  - CM reads `Operation Mode` from the CD header as authoritative; mismatch with dispatch message triggers a stop-and-ask rather than silent resolution
+  - Applies to all Change Documents created from this release forward; existing archived CDs not migrated
+
+- **Setup Agent Installs Templates** (`setup-agent-installs-templates`)
+  - Installer now copies `syspilot/templates/` → `.github/templates/` on every run
+  - Idempotent: re-running with unchanged source yields identical end-state
+  - Orphan Cleanup removes `.github/templates/` files that have no corresponding source
+  - Run summary includes a `templates/` row with Installed/Updated/Removed counts
+
+- **Skill Frontmatter Migration** (`skill-frontmatter-migration`)
+  - `syspilot.orchestration-jarvis` and `syspilot.impact-python` skills gain `group:` frontmatter fields (`orchestration` and `impact` respectively)
+  - `syspilot.ask-questions` and `syspilot.branching` confirmed conformant as standalone skills (no `group` field needed)
+  - `SYSP_REQ_SKILL_ORCHESTRATION_INVOKE` expanded to cover three-verb model; new REQs `SYSP_REQ_SKILL_ORCHESTRATION_GROUP` and `SYSP_REQ_SKILL_IMPACT_GROUP` created
+
+- **Installer Scope Positive Definition** (`installer-scope-positive-definition`)
+  - Installer's installation scope defined explicitly: only `agents/`, `prompts/`, `skills/`, `templates/` from `syspilot/` are copied to customer projects
+  - `docs/syspilot/` and change documents are never copied
+  - Minimal `docs/index.rst` created for target projects that have none; existing docs structures never overwritten
+
+- **Requirements Status Sweep** (`req-status-sweep`)
+  - All REQs in `req_setup_engineer.rst` that have approved child SPECs elevated from `draft` to `approved`
+  - Resolves hierarchy violation surfaced by QM: a draft REQ cannot authorise an approved child SPEC
+  - No semantic changes — pure status hygiene
+
+- **Agent Vocabulary Migration** (`agent-vocabulary-migration`)
+  - Phase 3 of the Skill Architecture rollout: agents use finalised verb vocabulary (INVOKE, DELEGATE, REPLY) instead of concrete tool references
+  - Manager agents (PM, CM, QM) use INVOKE for engineer subagent calls; engineer agents add REPLY as terminal workflow step
+  - No agent document prescribes a specific runtime tool in workflow steps — tool mapping delegated to the installed orchestration skill
+
+- **Agent Duties English Translation** (`agent-duties-english-translation`)
+  - German duty names introduced during v0.5.4 conformance sweep translated to English across all agent files and spec files
+  - Restores English-only convention compliance
+
+- **Toctree Housekeeping** (`toctree-housekeeping`)
+  - `docs/experiences/case-study-self-optimizing-agents` added to the main toctree in `docs/index.rst`
+  - Resolves persistent `sphinx-build -W` warning that blocked release validation
+
+### 📚 Documentation
+
+- **Field Notes** (`field-notes`)
+  - New Field Notes section added to the documentation site
+  - `docs/experiences/index.md` — landing page for practical experiences
+  - `docs/experiences/auto-agent-messaging.md` — running messages between agent sessions using Jarvis
+  - `docs/experiences/self-learning-agents.md` — adding an Analyst agent to diagnose quality degradation
+  - `docs/experiences/case-study-self-optimizing-agents.md` — extended case study on self-optimising agent patterns
+
+### 📋 Change Requests
+
+| Change Document | Scope |
+|----------------|-------|
+| `orchestration-skill-split` | Four-verb orchestration skill group; jarvis variant |
+| `uat-orchestration-skill-split` | UAT validation for orchestration-skill-split |
+| `orchestration-skill-fix` | Three post-merge defect fixes in jarvis skill |
+| `orchestration-agent-adoption` | Migrate agents from DELEGATE to SEND; add skills: frontmatter |
+| `installer-spec-rewrite` | Installer spec/agent rewrite with orphan cleanup + summary |
+| `installer-scope-positive-definition` | Positive scope definition; minimal docs/index.rst creation |
+| `setup-agent-installs-templates` | Installer manages templates/ directory |
+| `operation-mode-signalling` | Operation Mode structural field in Change Document |
+| `pm-owns-branch-and-change-setup` | PM/CM branch and CD ownership boundary |
+| `skill-frontmatter-migration` | Group fields for orchestration and impact skills |
+| `req-status-sweep` | Draft→approved status sweep for req_setup_engineer.rst |
+| `agent-vocabulary-migration` | Phase 3 verb vocabulary alignment (INVOKE/DELEGATE/REPLY) |
+| `agent-duties-english-translation` | German duty names translated to English |
+| `toctree-housekeeping` | Register case-study in main toctree |
+| `field-notes` | Field Notes documentation section |
+
+---
+
+## v0.5.5 - 2026-05-13
+
+### Summary
+Patch release fixing the CI version-validation workflow. The GitHub Actions `release.yml` was still reading from the removed `version.json` file; it now reads the `version:` field directly from the Setup Agent frontmatter, restoring CI validation for all future release tags. Also includes a process improvement establishing the 3-class Artefakt-Removal Rule in the CM Workflow and Change Document Template.
+
+### 🔧 Fixes & Improvements
+
+- **CI Version Source Fix** (`ci-version-source-fix`)
+  - GitHub Actions `release.yml` updated to read version from `syspilot/agents/syspilot.setup.agent.md` frontmatter instead of the removed `syspilot/version.json`
+  - CI now correctly validates that a pushed release tag matches the Setup Agent `version:` field
+  - All remaining `version.json` references removed from CI workflows and scripts
+  - All documentation references to `version.json` removed from `docs/architecture.md`, `docs/methodology.md`, and `docs/workflows.md`
+
+### 📋 Change Requests
+
+| Change Document | Scope |
+|----------------|-------|
+| `ci-version-source-fix` | CI workflow reads version from Setup Agent frontmatter |
+
+---
+
+## v0.5.4 - 2026-05-13
+
+### Summary
+Minor release completing the Duties/Workflow conformance sweep across all agents, establishing Skill Architecture as a first-class architectural component, and introducing Bootloader Schema v2 (`files[]` array + Soul/Guardrail alignment). Includes housekeeping cleanup of deferred skill-architecture findings and PM Duties completeness extensions.
+
+### 🏗️ Architecture
+
+- **Skill Architecture Foundation** (`skill-architecture-foundation`)
+  - Skill Architecture anchored alongside Agent Architecture in the spec hierarchy
+  - New `SYSP_US_SKILL_ARCH` User Story and `SYSP_REQ_SKILL_DEFINITIONS` Requirement created
+  - `docs/syspilot/conventions.md` documents Agent and Skill conventions including DEFINITIONS Dictionary pattern and Mutual Exclusion per group
+
+- **Agent Architecture: Duties/Workflow Definition** (`agent-arch-duties-workflow-definition`)
+  - `SYSP_REQ_AGENT_ARCH_DUTIES` and `SYSP_REQ_AGENT_ARCH_WORKFLOW` now establish a clear conceptual separation: Duties = outcome guarantees (WHAT), Workflow = ordered execution steps (HOW)
+  - Removes structural ambiguity that forced content duplication across both sections
+  - Outside-loop Analyst repair; behavioural enforcement remains an open item
+
+### 🔧 Fixes & Improvements
+
+- **Bootloader Schema v2** (`bootloader-schema-v2`)
+  - `bootstrap.json` uses a `files[]` array with `source`/`destination` per entry; `entry_point` field removed — manifest is now extensible without Bootloader changes
+  - Bootloader Soul and Guardrail corrected: accurately reflects that it installs exactly the files in `bootstrap.json`, resolving the Soul/Guardrail contradiction
+  - New Duty: **Manifest Fidelity** — after every run, exactly the declared files have been placed
+  - All affected specs (US, REQ, SPEC for setup/bootloader) updated
+
+- **PM Duties Completeness** (`pm-duties-completeness`)
+  - PM Duties extended with Release-Trigger (PM decides when to release + invokes Release Agent) and Setup-Trigger (PM triggers instance update via Setup Agent after release)
+  - `SYSP_US_DESIGN` AC1 clarified: Designer reads the Change Document created by CM — not creates it
+
+- **Duties Conformance — Implement, MECE, PM** (`agent-files-conformance-implement-mece-pm`)
+  - Top-to-bottom Duties conformance refactor for Dev Engineer, MECE Engine, and Project Manager
+  - Outcome-based Duties (4 / 4 / 6 respectively); numbered lists replaced with outcome bullets; ACs as end-state guarantees
+
+- **Duties Conformance — CM, UAT, Design** (`agent-files-conformance-cm-uat-design`)
+  - Duties conformance refactor for Change Manager, UAT Engineer, and Design Engineer
+  - Outcome guarantees; bullets instead of numbered lists; REQ ACs as end-state guarantees
+
+- **Duties Conformance — Release** (`agent-files-conformance-release`)
+  - Release Engineer Duties rewritten as outcome guarantees; numbered lists replaced with bullets; REQ ACs as end-state guarantees
+
+- **Duties Conformance — Verify, QM** (`agent-files-conformance-verify-qm`)
+  - Duties conformance refactor for Verify Engineer and Quality Manager
+  - Each Duty has at least one corresponding AC (CE-gap pattern fix)
+
+### 🏠 Housekeeping
+
+- **Cleanup: Skill Architecture Followups** (`cleanup-skill-arch-followups`)
+  - RST-lint: replaced single-backtick inline roles/literals with double backticks in `docs/syspilot/**` to eliminate `inline.role_no_name` diagnostics
+  - `SYSP_US_SETUP` extended with Mutual Exclusion AC
+
+### 📋 Change Requests
+
+| Change Document | Scope |
+|----------------|-------|
+| `skill-architecture-foundation` | Skill Architecture as spec-level component |
+| `agent-arch-duties-workflow-definition` | Duties vs. Workflow conceptual separation |
+| `bootloader-schema-v2` | Bootloader `files[]` schema + Soul/Guardrail fix |
+| `pm-duties-completeness` | PM Release-Trigger + Setup-Trigger Duties |
+| `agent-files-conformance-implement-mece-pm` | Implement + MECE + PM Duties conformance |
+| `agent-files-conformance-cm-uat-design` | CM + UAT + Design Duties conformance |
+| `agent-files-conformance-release` | Release Engineer Duties conformance |
+| `agent-files-conformance-verify-qm` | Verify + QM Duties conformance |
+| `cleanup-skill-arch-followups` | RST-lint fixes + SYSP_US_SETUP MECE AC |
+
+---
+
+## v0.5.3 - 2026-05-02
+
+### Summary
+Patch release with three process and tooling fixes: QM now dispatches separate MECE checks per specification level, the Release Agent uses deterministic file scanning for archival and release notes generation, and version tracking is consolidated in the Setup Agent frontmatter (removing the redundant `version.json`). Includes model assignment sync (Opus 4.6 / Sonnet 4.6 / Haiku 4.5).
+
+### 🔧 Fixes & Improvements
+
+- **Bootloader + Installer Split** (`bootloader-installer-split`)
+  - Split Setup Agent into Bootloader + Installer: Bootloader always fetches current Installer from upstream, breaking the self-hosting bootstrap cycle
+  - `syspilot.setup.agent.md` is now the lightweight Bootloader; `syspilot.installer.agent.md` is the full installation engine (not user-invocable)
+  - `syspilot/bootstrap.json` is a new server-side manifest; never stored on the customer system
+
+- **QM MECE Per Level** (`qm-mece-per-level`)
+  - QM dispatches separate MECE checks for each specification level (L0 User Stories, L1 Requirements, L2 Design Specs)
+  - Each MECE invocation receives exactly one level as input — no combined cross-level runs
+  - Findings Report clearly indicates per-level pass/fail results
+
+- **Release Explicit Sources** (`release-explicit-sources`)
+  - Archive step explicitly scans all `*.md` files in `docs/changes/` (excluding subdirectories) — no session-context dependency
+  - Document step generates release notes from the archived `docs/changes/<version>/` folder as the authoritative source
+  - Prevents incomplete archival and missing release notes entries due to context drift
+
+- **Release Version Source** (`release-version-source`)
+  - Release Agent bumps the `version:` field in `syspilot/agents/syspilot.setup.agent.md` (product source of truth)
+  - Redundant `syspilot/version.json` deleted
+  - Setup Agent propagates the version to the installed instance on next setup run
+
+### 🏠 Housekeeping
+
+- Agent model assignments synced from tested instance to product files:
+  - Claude Opus 4.6: design, implement (complex engineering tasks)
+  - Claude Sonnet 4.6: cm, pm, qm, setup, release, uat, docu (orchestration and documentation)
+  - Claude Haiku 4.5: mece, trace, verify (fast quality checks)
+
+### 📋 Change Requests
+
+| Change Document | Scope |
+|----------------|-------|
+| `qm-mece-per-level` | QM per-level MECE dispatch |
+| `release-explicit-sources` | Release Agent deterministic file scan |
+| `release-version-source` | Version in Setup Agent frontmatter, remove version.json |
+
+---
+
+## v0.5.2 - 2026-05-01
+
+### Summary
+Patch release with internal process fixes: PM/CM role boundaries clarified, merge gate process formalized, QM reduced to pure auditor role, Setup Agent preserves instance-specific tools on update, and CM sends post-merge confirmation to PM.
+
+### 🔧 Fixes & Improvements
+
+- **PM/CM Role Boundary** (`pm-cm-role-boundary`)
+  - PM writes CRs from user perspective only (intent + user-visible ACs, no implementation details)
+  - CM always follows the complete change process independently
+  - Design Agent gets `vscode/askQuestions` in frontmatter for user-guided mode
+
+- **Merge Gate Process** (`qm-merge-gate`)
+  - CM does not merge to development without PM approval
+  - QM results are always routed to PM who decides: fix now / defer / accept as-is
+  - Formal merge gate between QM review and development merge
+
+- **QM Auditor Only** (`qm-auditor-only`)
+  - QM always produces Findings Reports addressed to PM — never creates CRs directly
+  - Simplified QM model: one output format (Findings Report → PM)
+  - Aligns with the Merge Gate pattern
+
+- **Setup Preserve Tools** (`setup-preserve-tools`)
+  - Setup Agent preserves instance-specific `tools:` frontmatter field during updates
+  - Fresh installs copy `tools:` from product as-is
+  - New agents are always copied completely
+
+- **CM Merge Confirmation** (`cm-merge-confirmation`)
+  - After merging to development, CM sends confirmation to PM with commit hash and branch name
+  - Existing pre-merge notification remains unchanged
+
+- **Skill Installed Path** (`skill-installed-path`)
+  - SKILL.md references installed path (`.github/skills/`) instead of product path
+
+- **Skill Owns Scripts** (`skill-owns-scripts`)
+  - Scripts moved into skill folder for self-contained skills
+
+- **Skill Script Convention** (`skill-script-convention`)
+  - `scripts/` subdirectory convention + `.github/` scope rule for skill scripts
+
+- **Setup User Changes Check** (`setup-user-changes-check`)
+  - Customization guard: Setup Agent checks for user changes before overwriting
+  - Same-version check to avoid unnecessary updates
+
+- **Setup Version in Agent** (`setup-version-in-agent`)
+  - Version tracking moved into `syspilot.setup.agent.md` frontmatter (`version:` field)
+
+### 📋 Change Requests
+
+| Change Document | Scope |
+|----------------|-------|
+| `pm-cm-role-boundary` | PM/CM guardrails, CR intent stays high-level |
+| `qm-merge-gate` | Merge Gate process (CM waits for PM approval) |
+| `qm-auditor-only` | QM is pure auditor (Findings Reports only) |
+| `setup-preserve-tools` | Setup Agent preserves instance tools: frontmatter |
+| `cm-merge-confirmation` | CM post-merge confirmation to PM |
+| `skill-installed-path` | SKILL.md references installed path |
+| `skill-owns-scripts` | Self-contained skill folders with scripts |
+| `skill-script-convention` | scripts/ subdir + .github/ scope rule |
+| `setup-user-changes-check` | Customization guard + same-version check |
+| `setup-version-in-agent` | Version tracking in agent frontmatter |
+
+---
+
 ## v0.5.1 - 2026-04-27
 
 ### Summary
@@ -287,7 +831,7 @@ Two agent fixes: The release agent is refactored from a ~425-line syspilot-speci
   - Fixed: agent deleted change documents instead of archiving (violated REQ_CHG_CHANGE_DOC AC-5)
   - Refactored from ~425 to ~45 lines — KISS template with embedded decisions table
   - First `@syspilot.release` invocation bootstraps decisions by asking user
-  - Closes [#5](https://github.com/enthali/syspilot/issues/5)
+  - Closes [#5](https://github.com/hubertusgbecker/syspilot/issues/5)
 
 - **Setup Agent Dependency Detection** (US_INST_BOOTSTRAP, REQ_INST_AUTO_SETUP, SPEC_INST_SETUP_AGENT)
   - Fixed: setup agent installed sphinx-needs without checking if already available
@@ -512,7 +1056,7 @@ Previous releases used sequential IDs (`US_SYSPILOT_001`, `REQ_SYSPILOT_007`). A
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta.3 - 2026-01-31
 
@@ -561,7 +1105,7 @@ Bugfix release improving installation UX. Setup Agent now auto-detects syspilot 
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta.2 - 2026-01-30
 
@@ -627,7 +1171,7 @@ Second beta release adding installation/update system and complete release autom
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*
 
 ## v0.1.0-beta - 2026-01-30
 
@@ -685,4 +1229,4 @@ Initial beta release of syspilot, a requirements engineering toolkit using sphin
 
 ---
 
-*For detailed traceability, see the [documentation](https://enthali.github.io/syspilot/)*
+*For detailed traceability, see the [documentation](https://hubertusgbecker.github.io/syspilot/)*

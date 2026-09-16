@@ -5,16 +5,11 @@
 # .syspilot/ is created by setup agent
 # ======================================
 .syspilot/
+!.syspilot/ontology.toml
 .jarvis/
 .vscode/
 managers/
 projects/
-
-# Installed by setup agent (product copies — source of truth is syspilot/)
-.github/agents/
-.github/prompts/
-.github/skills/
-scripts/
 
 # Python
 __pycache__/
@@ -23,6 +18,9 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 dist/
+
+# Auto-generated docs
+docs/ontology-reference.md
 build/
 .eggs/
 
@@ -51,4 +49,16 @@ docs/_build/
 
 # temporary files
 temp/
+
+# build artifacts
+docs/build.log
+
+# jarvis temp files
+temp_messages.txt
+
+# jarvis runtime hooks (installed/generated locally, not product content)
+.github/hooks/
+
+# installed instructions (not yet shared in the public MIT repo)
+.github/instructions/
 

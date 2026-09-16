@@ -7,6 +7,8 @@
 
 <p align="center"><strong>Requirements Engineering that scales with AI.</strong></p>
 
+> **⚠️ Early Research Project** — syspilot is under active development. Feel free to use it, fork it, or just study the approach. Updates may introduce breaking changes without migration paths.
+
 > Your project has 5000 requirements. A change affects 5 of them.
 > syspilot follows [sphinx-needs](https://sphinx-needs.readthedocs.io/) traceability links to find exactly those 5 — so your AI agent gets focused context, not the entire codebase.
 
@@ -17,7 +19,7 @@ Cover 100% of your specs with 6x less tokens. Links are deterministic — search
 **Linux / Mac / GitHub Codespaces:**
 ```bash
 mkdir -p .github/agents && curl -fsSL \
-  "https://raw.githubusercontent.com/enthali/syspilot/main/syspilot/agents/syspilot.setup.agent.md" \
+  "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" \
   -o .github/agents/syspilot.setup.agent.md
 ```
 
@@ -25,7 +27,7 @@ mkdir -p .github/agents && curl -fsSL \
 ```powershell
 New-Item -ItemType Directory -Force -Path .github/agents | Out-Null
 Invoke-WebRequest `
-  -Uri "https://raw.githubusercontent.com/enthali/syspilot/main/syspilot/agents/syspilot.setup.agent.md" `
+  -Uri "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" `
   -OutFile ".github/agents/syspilot.setup.agent.md"
 ```
 
@@ -57,8 +59,6 @@ Four **managers** that orchestrate the work, and seven **engineers** that execut
 
 Agents are stable processes (WHAT to do). **Skills** are exchangeable tool bindings (HOW to do it) — customize syspilot by swapping skills, not agents.
 
-Agents are stable processes (WHAT to do). **Skills** are exchangeable tool bindings (HOW to do it) — customize syspilot by swapping skills, not agents.
-
 ## How It Works
 
 ```
@@ -69,17 +69,15 @@ When you request a change, syspilot follows these links to find only the affecte
 
 ## Documentation
 
-📖 **Full docs:** [enthali.github.io/syspilot](https://enthali.github.io/syspilot/index.html)
+📖 **Full docs:** [hubertusgbecker.github.io/syspilot](https://hubertusgbecker.github.io/syspilot/index.html)
 
 Includes methodology, naming conventions, and traceability matrices.
 
 ## Requirements
 
 - **VS Code** + **GitHub Copilot** (license required)
-- Permission to install **Python 3.10+** and Python packages (sphinx, sphinx-needs)
+- **Python 3.10+** with `sphinx` and `sphinx-needs` pre-installed (`pip install sphinx sphinx-needs`)
+- **[`enthali.jarvis-core`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-core)** VS Code extension, installed and enabled on your default agent's tool set — required for multi-agent orchestration (agents hand off work via `SEND`/session messaging). If disabled, agents silently lose this ability instead of erroring.
 
-> `@syspilot.setup` handles all installation — your IT just needs to allow it.
+> If `sphinx-needs` is missing, `@syspilot.setup` prints install instructions and stops — it does not auto-install packages.
 
-## License
-
-Apache 2.0

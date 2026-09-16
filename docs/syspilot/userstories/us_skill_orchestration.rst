@@ -1,7 +1,7 @@
 Skill: Orchestration
 ====================
 
-Manager-to-engineer orchestration pattern.
+Peer-to-peer agent communication pattern.
 
 
 .. story:: Consistent Agent Orchestration
@@ -9,27 +9,36 @@ Manager-to-engineer orchestration pattern.
    :status: approved
    :priority: mandatory
    :tags: agent-v2, skill, orchestration, architecture
+   :links: SYSP_US_SKILL_ARCH
 
-   **As a** syspilot manager agent,
-   **I want** a defined orchestration pattern,
-   **so that** engineer invocation is consistent and traceable.
+   **As a** syspilot agent,
+   **I want** a defined communication pattern with generic verbs,
+   **so that** agent communication is consistent, traceable, and
+   independent of the underlying orchestration mechanism.
 
    **Context:**
 
-   Manager agents (CM, QM, PM) orchestrate engineer agents as subagents.
-   Without a defined pattern, each manager would invent its own invocation
-   style, making the system inconsistent, hard to debug, and difficult to
-   extend with new engineers.
+   Any syspilot agent may communicate with any other agent — the pattern
+   is peer-to-peer and role-agnostic. Without a defined pattern, each agent
+   would invent its own communication style, making the system inconsistent,
+   hard to debug, and difficult to extend.
 
-   The orchestration pattern defines:
+   syspilot leverages both asynchronous and synchronous communication
+   methods between agents. The orchestration pattern defines three generic
+   verbs:
 
-   * How managers invoke engineers (``runSubagent()``)
-   * What the ``agents:`` frontmatter field means
-   * How engineers report results back to managers
+   * **SEND** — pass work to another agent (the installed variant decides
+     whether this is asynchronous message delivery or a synchronous call)
+   * **RECEIVE** — obtain the instructions that triggered this run (a
+     pending inbox message, or the task the agent was started with)
+   * **RESPOND** — deliver the result back to the agent that initiated the
+     work; the installed variant routes this appropriately
+
+   These verbs are tool-agnostic. The concrete mapping is provided by the
+   installed orchestration skill variant.
 
    **Acceptance Criteria:**
 
-   1. Given any agent document that says "invoke", When interpreted by a manager, Then it means ``runSubagent()``
-   2. Given an agent's ``agents:`` frontmatter, When the manager operates, Then it can only invoke agents listed there
-   3. Given an engineer completes a task, When reporting back, Then it uses a structured result format
-   4. Given two engineers, When working on the same workflow, Then they are decoupled and unaware of each other
+   1. Given any agent that says "SEND", When it dispatches work to another agent, Then the work reaches that agent regardless of the underlying communication mechanism
+   2. Given any agent that says "RECEIVE", When it starts a run, Then it obtains the instructions that triggered the run
+   3. Given any agent that says "RESPOND", When it completes its work, Then the result reaches the agent that initiated the work

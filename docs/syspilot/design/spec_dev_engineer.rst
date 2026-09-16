@@ -29,17 +29,20 @@ Dev Engineer Design
 
    **Duties:**
 
-   1. **Change Document Reading** — Read and understand the Change Document to
-      identify what needs to be implemented
-   2. **Spec Querying** — Use ``get_need_links.py`` and sphinx-needs data to find
-      all relevant SPEC elements and their acceptance criteria
-   3. **Code Implementation** — Write code that fulfills the Design Spec acceptance
-      criteria, following existing patterns and conventions
-   4. **Test Writing** — Create tests that verify Requirements are met, referencing
-      REQ IDs in test docstrings
-   5. **Documentation Updates** — Update user-facing docs (README, agent.md files)
-      when behavior changes
-   6. **Traceability Commits** — Commit with messages referencing the Change Document
+   * **Spec-Implementation Alignment** — After every implementation run,
+     every SPEC element declared in the Change Document has a corresponding
+     code/test/doc change — no declared spec remains unimplemented, no code
+     exists without a spec anchor.
+   * **Operability** — After every implementation run, all tests pass and
+     the build is not broken — no defective state remains after completion.
+   * **Spec Integrity** — During any implementation task, no spec content
+     or spec status is modified — specification integrity remains intact throughout.
+   * **Traceability** — After every commit, the commit message references
+     the Change Document — no implementation exists without traceability.
+   * **Spec-Divergence Escalation** — When a code-level defect implies the
+     approved spec is wrong or incomplete, the Dev Engineer does not patch around
+     the discrepancy but escalates for spec correction — no code change silently
+     diverges from an approved spec.
 
 
 .. spec:: Dev Engineer Workflow
@@ -50,13 +53,14 @@ Dev Engineer Design
 
    **Workflow:**
 
-   1. **Read** — Open and read the Change Document
+   1. **RECEIVE** — RECEIVE the assignment from the initiator; open and read the Change Document
    2. **Query** — Use link discovery to find all impacted SPEC elements
    3. **Read Specs** — Read each SPEC's detailed design and acceptance criteria
    4. **Implement** — Write code matching the specifications
    5. **Test** — Write tests, run them, ensure all pass
    6. **Document** — Update user-facing documentation
    7. **Commit** — Stage and commit with traceability message
+   8. **RESPOND** — Report the result (status, commits, summary, issues) back to the initiator
 
    **Input:** Change Document (path provided by CM)
    **Output:** Committed code + tests + documentation updates
@@ -64,14 +68,13 @@ Dev Engineer Design
 
 .. spec:: Dev Engineer Frontmatter
    :id: SYSP_SPEC_IMPLEMENT_FRONTMATTER
-   :status: approved
+   :status: draft
    :tags: agent-v2, engineer, implement, frontmatter
    :links: SYSP_REQ_IMPLEMENT_FRONTMATTER
 
    **Frontmatter Configuration:**
 
    * **description:** ``"Subagent that implements code changes from approved Change Documents. Reads specs, writes code, writes tests, commits with traceability."``
-   * **tools:** ``[read, edit, search, todo, execute]``
    * **user-invocable:** ``false``
    * **agents:** ``[]``
 

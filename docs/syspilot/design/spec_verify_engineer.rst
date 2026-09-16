@@ -29,17 +29,19 @@ Verify Engineer Design
 
    **Duties:**
 
-   1. **Read Change Document** — Parse the Change Document to identify all new
-      and modified elements (US, REQ, SPEC, agent files, skill files)
-   2. **Spec-to-Implementation Comparison** — For each changed spec, locate the
-      corresponding implementation artifact and verify it matches the spec's
-      intent, acceptance criteria, and constraints
-   3. **Traceability Link Checking** — Delegate to the Trace Engineer (subagent)
-      scoped to the Change Document's elements. Orchestrate, don't duplicate.
-   4. **Sphinx Build Validation** — Run ``uv run sphinx-build -b html . _build/html``
-      and check for warnings or errors related to changed elements
-   5. **Validation Report Creation** — Write a validation report at
-      ``docs/changes/val-<name>.md`` summarizing findings with pass/fail per element
+   * **Spec-Implementation Alignment** — After every verification run,
+     every spec change declared in the Change Document has been compared against
+     its implementation — no declared change remains unverified, no implementation
+     exists without a spec anchor.
+   * **Traceability Completeness** — After every verification run, every
+     traceability link chain for declared elements has been validated end-to-end —
+     no broken chain passes silently.
+   * **Discrepancy Visibility** — After every verification run, all detected
+     discrepancies are documented in the validation report with file path and
+     evidence — no gap is silently fixed or suppressed.
+   * **Validation Report Existence** — After every verification run, a validation
+     report exists at ``docs/changes/val-<name>.md`` — no verification ends without
+     a checkable artifact.
 
    The ``todo`` tool tracks per-element verification progress during long runs.
 
@@ -52,8 +54,9 @@ Verify Engineer Design
 
    **Workflow:**
 
-   1. **Receive Change Document** — Open the Change Document (path provided by CM),
-      extract the list of all changed element IDs and implementation files
+   1. **RECEIVE Change Document** — RECEIVE the assignment from the initiator;
+      open the Change Document (path provided by CM), extract the list of all
+      changed element IDs and implementation files
    2. **Read Specs** — For each changed element, read the RST source to understand
       what was specified
    3. **Compare Against Implementation** — Locate the implementation artifact
@@ -65,6 +68,7 @@ Verify Engineer Design
       per-element pass/fail, evidence, and summary
    7. **Update Spec Statuses** — Set ``:status: implemented`` on elements that pass
       verification; flag elements that fail with evidence
+   8. **RESPOND** — Report the validation result (per-element pass/fail, evidence) back to the initiator
 
    **Input:** Change Document path (provided by CM)
    **Output:** Validation report + updated spec statuses
@@ -81,8 +85,7 @@ Verify Engineer Design
    **Frontmatter Configuration:**
 
    * **description:** ``"Verify implementation matches Change Document and traceability is complete."``
-   * **tools:** ``[read, search, execute, todo]``
    * **user-invocable:** ``false``
-   * **agents:** ``[syspilot.trace]``
+   * **agents:** ``[]``
 
    **File:** ``syspilot.verify.agent.md``

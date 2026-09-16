@@ -6,7 +6,7 @@ User stories for external and internal documentation artifacts.
 
 .. story:: External Documentation
    :id: SYSP_US_DOC_EXTERNAL
-   :status: approved
+   :status: draft
    :priority: mandatory
    :tags: agent-v2, documentation, external
    :links: SYSP_US_AGENT_ARCH
@@ -29,6 +29,7 @@ User stories for external and internal documentation artifacts.
    3. Given architecture.md, When I read it, Then it describes the Product/Installation model and customization approach
    4. Given workflows.md, When I read it, Then it describes the change, quality, and release workflows
    5. Given namingconventions.md, When I read it, Then it defines ID formats, file naming, and theme abbreviations
+   6. Given the user installs syspilot, When they read the documentation, Then it clearly states that ``enthali.jarvis-core`` must be enabled on their default VS Code agent for session-based orchestration to work — without it, agents silently lose orchestration capability
 
 
 .. story:: Internal Reference Documentation
@@ -55,6 +56,37 @@ User stories for external and internal documentation artifacts.
    1. Given copilot-instructions.md, When an AI agent reads it, Then it has enough context to understand the project structure
    2. Given copilot-instructions.md, When the agent system changes, Then the file is updated to reflect the new architecture
    3. Given copilot-instructions.md, When I read it, Then it describes the specification hierarchy, agent roles, and development workflow
+
+
+.. story:: Agent and Skill Conventions Reference
+   :id: SYSP_US_DOC_CONVENTIONS
+   :status: draft
+   :priority: mandatory
+   :tags: agent-v2, documentation, conventions, skills
+   :links: SYSP_US_DOC_EXTERNAL, SYSP_US_SKILL_ARCH, SYSP_US_AGENT_ARCH
+
+   **As a** contributor or implementer,
+   **I want to** have a concise conventions reference document for Agents and Skills,
+   **so that** I can create and extend Agents and Skills correctly and consistently.
+
+   **Context:**
+
+   Agents follow a Soul/Duties/Workflow structure with a defined frontmatter schema.
+   Skills follow a name/group/DEFINITIONS structure. Without a conventions reference,
+   implementers must piece together the rules from individual spec files — leading
+   to inconsistencies in new Agents and Skills.
+
+   The conventions reference covers implementer-facing rules: frontmatter fields,
+   required sections, generic verbs (invoke/delegate), the DEFINITIONS Dictionary
+   concept, Mutual Exclusion per group, and Skill variants.
+
+   **Acceptance Criteria:**
+
+   1. Given conventions.md, When I read it, Then it covers both Agent and Skill conventions in one place
+   2. Given conventions.md, When I read the Skill section, Then it explains the DEFINITIONS Registry concept and points to ``SYSP_SPEC_SKILL_DEFINITIONS`` as the authoritative source
+   3. Given conventions.md, When I read the Agent section, Then it defines the generic verbs ``invoke`` and ``delegate to`` and when to use each
+   4. Given conventions.md, When I read the Skill section, Then it explains Mutual Exclusion per group
+   5. Given conventions.md, When I read it, Then it notes which conventions are already implemented and which are pending
 
 
 .. story:: Release Notes
