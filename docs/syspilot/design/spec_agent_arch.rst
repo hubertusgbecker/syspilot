@@ -105,7 +105,12 @@ Meta-level definitions of Soul, Duties, and Workflow concepts.
      skeleton itself contains zero project-specific nouns. The file may be
      empty (proceed generic), clarify, or override. If missing, the agent
      RESPONDs to PM (or, if the agent *is* PM, runs its own Tailoring Workflow
-     directly), who interviews the user and authors it.
+     directly), who interviews the user and authors it. Because VS Code
+     detects any ``.md`` file in ``.github/agents/`` as a selectable custom
+     agent, every tailoring file begins with its own frontmatter block
+     (``user-invocable: false``, ``disable-model-invocation: true``) so it
+     never appears in the agent picker or accepts subagent invocation despite
+     living next to its agent.
 
    * **Implementation Template** — Every customizable agent's Workflow section
      SHALL begin with a Preflight sentence of the form:

@@ -1,3 +1,8 @@
+---
+user-invocable: false
+disable-model-invocation: true
+---
+
 # syspilot.pm — Tailoring for the syspilot project
 
 ## Deviation Detection
