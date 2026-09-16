@@ -1,6 +1,5 @@
 ---
 description: "Internal installation engine for syspilot. Invoked by Bootloader only — not user-invocable."
-model: Claude Sonnet 4.6 (copilot)
 user-invocable: false
 agents: []
 ---

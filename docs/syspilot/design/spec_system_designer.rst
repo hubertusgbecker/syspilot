@@ -99,6 +99,6 @@ System Designer
 
    * **description:** ``"Subagent that analyzes change requests level-by-level (US → REQ → SPEC) with a persistent Change Document. Writes RST files with full traceability."``
    * **user-invocable:** ``false``
-   * **agents:** ``[]``
+   * **agents:** ``["syspilot.mece"]``
 
    **File:** ``syspilot.design.agent.md``

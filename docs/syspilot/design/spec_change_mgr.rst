@@ -156,6 +156,6 @@ Change Manager Design
 
    * **description:** ``"Central orchestrator of the change workflow. Receives Change Requests, dispatches engineers in sequence, enforces quality gates, and reports completion with full traceability."``
    * **user-invocable:** ``true``
-   * **agents:** ``[]``
+   * **agents:** ``["syspilot.design", "syspilot.uat", "syspilot.implement", "syspilot.mece", "syspilot.trace", "syspilot.docu", "syspilot.pm", "syspilot.qm"]``
 
    **File:** ``syspilot.cm.agent.md``

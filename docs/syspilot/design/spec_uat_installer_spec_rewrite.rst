@@ -142,7 +142,7 @@ Per-scenario verification checklist for all nine CR acceptance criteria.
 
    ---
 
-   **T-5 — Frontmatter preservation: ``tools:`` preserved, others reset**
+  **T-5 — Frontmatter preservation: ``tools:`` preserved, product fields reset**
 
    *CR AC:* AC5 |
    *REQ ref:* ``SYSP_REQ_INSTALLER_DUTIES``
@@ -150,7 +150,8 @@ Per-scenario verification checklist for all nine CR acceptance criteria.
    **Precondition:** T-1 passed; ``.github/agents/syspilot.cm.agent.md`` exists.
    The tester has manually edited the ``tools:`` field in that file to a known
    custom value before this scenario begins (e.g. ``tools: [my-custom-tool]``).
-   The ``model`` and ``description`` fields are noted before the re-run.
+  The ``description`` field is noted before the re-run. The tester has also
+  added a local ``model:`` field with any value.
 
    **Actions:**
 
@@ -164,8 +165,8 @@ Per-scenario verification checklist for all nine CR acceptance criteria.
 
    * [ ] The ``tools:`` field value matches the tester's custom value
      (``[my-custom-tool]`` or equivalent) — it was NOT overwritten.
-   * [ ] The ``model`` field matches the upstream value (not the locally cached
-     value if it changed upstream).
+   * [ ] The ``model`` field is absent, so model selection remains with the
+     active harness or user configuration.
    * [ ] The ``description`` field matches the upstream value.
    * [ ] Open ``.github/agents/syspilot.setup.agent.md`` (the Bootloader):
      its entire content matches the upstream file verbatim — no field preservation
@@ -173,8 +174,9 @@ Per-scenario verification checklist for all nine CR acceptance criteria.
 
    **Pass criterion:** All four check items confirmed.
 
-   **Fail criterion:** ``tools:`` value reset to upstream; or ``model`` /
-   ``description`` not reset; or Bootloader content differs from upstream verbatim.
+  **Fail criterion:** ``tools:`` value reset to upstream; ``model`` remains
+  pinned; ``description`` not reset; or Bootloader content differs from
+  upstream verbatim.
 
    ---
 
@@ -335,10 +337,9 @@ Per-scenario verification checklist for all nine CR acceptance criteria.
    repository.  If no such environment is available, T-6 must be executed in an
    isolated container or VM.
 
-   **TC-3 — T-5 upstream value observation**
+  **TC-3 — T-5 upstream description observation**
 
-   T-5 requires knowing the upstream ``model`` and ``description`` values before
-   the re-run to confirm they are reset correctly.  If the upstream values are
-   identical to local values, the check item is vacuously true.  The tester
-   SHOULD temporarily set ``model`` to a dummy value locally before the re-run
-   to make the check observable.
+  T-5 requires knowing the upstream ``description`` value before the re-run to
+  confirm it is reset correctly. If the upstream value is identical to the
+  local value, the check item is vacuously true. The tester SHOULD temporarily
+  change ``description`` locally before the re-run to make the reset observable.
