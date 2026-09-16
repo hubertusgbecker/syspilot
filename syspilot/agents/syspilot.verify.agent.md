@@ -2,7 +2,6 @@
 name: "Verify Engineer"
 agent: syspilot.verify
 description: "Verify implementation matches Change Document and traceability is complete."
-model: Claude Haiku 4.5 (copilot)
 user-invocable: false
 agents: ["syspilot.trace"]
 ---

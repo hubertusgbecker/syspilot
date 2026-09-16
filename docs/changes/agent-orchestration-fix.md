@@ -3,14 +3,14 @@
 **Status**: in-progress
 **Branch**: feature/agent-orchestration-fix
 **Created**: 2026-09-16
-**Author**: PM
+**Author**: hubertusgbecker
 **Operation Mode**: autonomous
 
 ---
 
 ## Summary
 
-Restore the VS Code synchronous orchestration pipeline so every syspilot agent can be invoked only as intended and every agent that SENDs work can reach all of its declared targets through ``runSubagent``. The change corrects the product and installed agent frontmatter, aligns requirements and designs with VS Code's enforced ``agents:`` allowlist, corrects the Subagent orchestration skill guidance, and installs the synchronous orchestration variant in this non-Jarvis workspace. Acceptance is demonstrated when the complete product/installed invocation and SEND-target matrix passes, the patch is clean, and no new documentation-build warning is introduced.
+Restore the VS Code synchronous orchestration pipeline so every syspilot agent can be invoked only as intended and every agent that SENDs work can reach all of its declared targets through ``runSubagent``. The change corrects the product and installed agent frontmatter, removes proprietary ``model:`` pins so harness and user model choices are inherited, aligns requirements and designs with VS Code's enforced ``agents:`` allowlist, corrects the Subagent orchestration skill guidance, and installs the synchronous orchestration variant in this non-Jarvis workspace. Acceptance is demonstrated when the complete product/installed invocation and SEND-target matrix passes, no agent carries a model pin, the patch is clean, and no new documentation-build warning is introduced.
 
 ---
 
@@ -40,6 +40,7 @@ Restore the VS Code synchronous orchestration pipeline so every syspilot agent c
 
 - Decision 1: Preserve the existing Manager-to-Engineer workflow and correct its runtime declarations rather than redesigning orchestration.
 - Decision 2: Treat ``agents:`` as an enforced VS Code allowlist; every actual SEND edge must be declared for both orchestration variants.
+- Decision 3: Omit ``model:`` from every agent so users can select proprietary or open-source models through their harness configuration without setup/update restoring an upstream pin.
 
 ### Horizontal Check (MECE)
 
@@ -160,6 +161,7 @@ For each removed artefact, run a project-wide grep on all plausible name variant
 ### Issues Found
 
 - [x] Focused matrix check passes for all product and installed agent copies.
+- [x] Focused scan finds zero ``model:`` declarations across product and installed agent copies.
 - [x] ``git diff --check`` passes.
 - [x] Real Sphinx build reaches completion with only two pre-existing ``ontology-architecture`` cross-reference warnings in ``docs/methodology.md`` and ``docs/syspilot/methodology.md``; this CR introduces no warning in a changed file.
 - [x] Live ``runSubagent`` proof requires a new Copilot chat because the current session's agent registry was fixed at session start with the old empty allowlist.

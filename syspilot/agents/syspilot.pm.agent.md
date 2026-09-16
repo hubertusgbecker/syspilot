@@ -2,7 +2,6 @@
 name: "Project Manager"
 agent: syspilot.pm
 description: "Strategic project manager that discusses features, prioritizes backlogs, conducts research, and delegates Change Requests to the Change Manager."
-model: Claude Sonnet 4.6 (copilot)
 user-invocable: true
 agents: ["syspilot.cm", "syspilot.release"]
 ---

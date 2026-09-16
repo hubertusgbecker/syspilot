@@ -2,7 +2,6 @@
 name: "Change Manager"
 agent: syspilot.cm
 description: "Central orchestrator of the change workflow. Receives Change Requests, coordinates engineers in sequence, enforces quality gates, and reports completion with full traceability."
-model: Claude Sonnet 4.6 (copilot)
 user-invocable: true
 agents: ["syspilot.design", "syspilot.uat", "syspilot.implement", "syspilot.mece", "syspilot.trace", "syspilot.docu", "syspilot.pm", "syspilot.qm"]
 ---
