@@ -48,6 +48,15 @@ Quality Manager Design
      Report.
    * **Quality Check Coverage** — After every audit run, MECE, Trace, and Schema
      checks are all executed — no check type is omitted.
+   * **Findings Durability** — After every CM-triggered quality check, all findings
+     are written directly into the ``## QM Findings`` section of the Change Document
+     (in addition to the Jarvis notification) — no CM-triggered finding exists only
+     as an ephemeral Jarvis message.
+   * **Spec-Layer Root-Cause Attribution** — Given a code-level defect is found,
+     QM traces the defect upward to the specification layer before classifying it
+     as a pure implementation slip — no code-level finding is closed without
+     verifying whether wrong or missing spec text, or a missing cross-link, is
+     the actual root cause.
 
 
 .. spec:: Quality Manager Workflow
@@ -58,46 +67,52 @@ Quality Manager Design
 
    **Workflow:**
 
-   1. **Trigger** — Periodic heartbeat, PM request, user-initiated, or CM-completion notification
-   2. **Plan** — Determine which checks to run (all levels, specific level, specific items);
-      for CM-completion triggers, read the Change Document to scope MECE and Trace checks
-      to the impacted IDs listed therein
-   3. **Dispatch** — Invoke Quality Engineers: the MECE Engineer is called once per
-      specification level (L0, L1, L2) as separate invocations, each receiving
-      exactly one level as input; Trace Engineer handles item-level traceability
-   4. **Collect** — Gather per-level findings from all dispatched MECE invocations
-      and findings from the Trace Engineer
-   5. **Report** — Produce consolidated quality report with clearly separated
-      per-level results indicating pass/fail status for each specification level
-   6. **Act** — Route Findings Report to PM; PM makes the fix/defer/accept
-      decision for each finding; QM does NOT create CRs
+   1. **RECEIVE Trigger** — RECEIVE the review trigger from CM as the final
+      quality gate of a completed change, after implementation and validation
+   2. **Plan** — Read the Change Document to scope the check to the impacted IDs
+      declared therein
+   3. **Dispatch Spec Checks** — SEND to the MECE Engineer once per specification
+      level (L0, L1, L2) — each SEND carries exactly one level — and SEND to the
+      Trace Engineer for item-level traceability; await each RESPOND
+   4. **Assess Implementation + Validation** — QM assesses the implementation and
+      the validation of the change itself (no specialist engineers exist for
+      those)
+   5. **Consolidate** — Gather the per-level MECE findings, the Trace findings,
+      and the implementation/validation assessment into a consolidated result
+      with clearly separated per-level pass/fail status
+   6. **Record** — Write the findings into the ``## QM Findings`` section of the
+      Change Document as a new ``### Round N`` sub-section
+   7. **RESPOND** — Report the findings to PM, who makes the fix / defer / accept
+      decision for each finding
 
-   **Input:** Trigger (periodic, on-demand, PM request, or CM-completion)
-   **Output:** Findings Report → PM
+   **Input:** Review trigger from CM (Change Document path + branch name)
+   **Output:** Findings recorded in the Change Document; report to PM
 
    **Process Flow:**
 
    ::
 
-      Trigger (periodic, on-demand, PM request, or CM-completion)
-        → Quality Eng. MECE (L0: User Stories)
-        → Quality Eng. MECE (L1: Requirements)
-        → Quality Eng. MECE (L2: Design Specs)
-        → Quality Eng. Trace (sample items)
-        → Consolidated Findings Report (per-level pass/fail) → PM (fix / defer / accept)
+      RECEIVE review trigger from CM (after implementation + validation)
+        → Plan scope from Change Document (impacted IDs)
+        → SEND MECE (L0: User Stories)
+        → SEND MECE (L1: Requirements)
+        → SEND MECE (L2: Design Specs)
+        → SEND Trace (impacted items)
+        → Assess implementation + validation (QM itself)
+        → Record findings in ## QM Findings section of Change Document (Round N)
+        → RESPOND consolidated findings (per-level pass/fail) → PM (fix / defer / accept)
 
 
 .. spec:: Quality Manager Frontmatter
    :id: SYSP_SPEC_QM_FRONTMATTER
-   :status: approved
+   :status: draft
    :tags: agent-v2, manager, qm, frontmatter
    :links: SYSP_REQ_QM_FRONTMATTER
 
    **Frontmatter Configuration:**
 
    * **description:** ``"Independent quality guardian that dispatches MECE and Trace engineers, consolidates findings, and produces Findings Reports addressed to PM."``
-   * **tools:** ``[read, edit, search, agent, agent/runSubagent, todo, execute, syspilot_jarvis_tools]``
    * **user-invocable:** ``true``
-   * **agents:** ``["syspilot.mece", "syspilot.trace"]``
+   * **agents:** ``[]``
 
    **File:** ``syspilot.qm.agent.md``

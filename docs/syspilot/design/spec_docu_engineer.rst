@@ -43,8 +43,7 @@ Documentation Engineer Design
 
    4. **README** — Keep installation, usage, and overview current
    5. **Methodology** — Update methodology docs when framework evolves
-   6. **Release Notes** — Ensure release notes reflect actual changes
-   7. **Architecture** — Update architecture docs when structure changes
+   6. **Architecture** — Update architecture docs when structure changes
 
    **Principle:** If it changes every commit, don't document it. If another
    file already says it, link don't copy.
@@ -58,32 +57,32 @@ Documentation Engineer Design
 
    **Workflow:**
 
-   1. **Gather Changes** — Read recent git commits and changed files
-      (``git log --oneline main..HEAD``)
+   1. **RECEIVE** — RECEIVE the assignment from the initiator; read recent git
+      commits and changed files (``git log --oneline main..HEAD``)
    2. **Assess Current State** — Read copilot-instructions.md and other docs,
       compare documented state vs. reality
    3. **Identify Gaps** — Find missing, outdated, or redundant documentation
    4. **Update Internal Docs** — Update copilot-instructions.md, context.md,
       naming conventions
-   5. **Update External Docs** — Update README, methodology, architecture,
-      release notes as needed
+   5. **Update External Docs** — Update README, methodology, architecture
+      as needed
    6. **Remove Stale Content** — Delete sections that became redundant
    7. **Verify** — Ensure consistency across all documentation
+   8. **RESPOND** — Report the result (updated files, commit, issues) back to the initiator
 
-   **Input:** Trigger from CM (after change completion) or direct invocation
+   **Input:** Trigger from CM (after change completion)
    **Output:** Updated documentation files + commit
 
 
 .. spec:: Documentation Engineer Frontmatter
    :id: SYSP_SPEC_DOCU_FRONTMATTER
-   :status: approved
+   :status: draft
    :tags: agent-v2, engineer, docu, frontmatter
    :links: SYSP_REQ_DOCU_FRONTMATTER
 
    **Frontmatter Configuration:**
 
    * **description:** ``"Subagent that keeps internal and external documentation in sync with reality. Updates copilot-instructions.md, context.md, README, and methodology docs."``
-   * **tools:** ``[read, edit, search, todo, execute]``
    * **user-invocable:** ``false``
    * **agents:** ``[]``
 

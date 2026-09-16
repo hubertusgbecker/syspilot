@@ -25,6 +25,13 @@ Each family defines its own:
 - **Naming conventions** — themes, slug rules, examples
 - **Agent templates** — the product artifacts
 - **Spec tree** — US → REQ → SPEC (or whatever levels the family uses)
+- **Ontology** — which Work-Product types exist and how they relate
+
+> **Ontology note (Phase 0):** The `syspilot` family ships with a built-in
+> default ontology (User Story → Requirement → Design Spec, L0/L1/L2). This
+> is *one* ontology template, not a hard-coded constraint. Per the ontology
+> architecture decision, other ontologies (e.g. ASPICE) are first-class.
+> See [architecture.md — Ontology Architecture](architecture.md#ontology-architecture).
 
 ## Repository Structure
 
@@ -40,7 +47,8 @@ syspilot/                       # syspilot family product
 │   ├── syspilot.ask-questions/ #     Folder-based, YAML frontmatter
 │   ├── syspilot.branching/
 │   ├── syspilot.impact-python/
-│   └── syspilot.orchestration-jarvis/
+│   ├── syspilot.orchestration-jarvis/     #   Async variant (mutex pair)
+│   └── syspilot.orchestration-subagent/   #   Sync variant (mutex pair)
 ├── scripts/python/             #   Utilities → .syspilot/scripts/
 ├── sphinx/                     #   Build scripts → docs/
 ├── templates/                  #   Document templates → .github/templates/
@@ -130,7 +138,7 @@ Each agent has a defined scope of what it may write:
 | Implement Agent | `<family>/` (product artifacts) | `.github/agents/` |
 | Setup Agent | `.github/` (installation) | `<family>/` |
 | Release Agent | `docs/`, version files | `.github/agents/` |
-| Test Engineer (`uat`) | Status updates in specs | — |
+| Test Designer (`uat`) | Designs UAT test scenarios for human executors | — |
 | Documentation Engineer (`docu`) | `.github/copilot-instructions.md`, `docs/` | `<family>/` |
 
 The **Setup Agent** is the only agent that syncs `<family>/` → `.github/`.

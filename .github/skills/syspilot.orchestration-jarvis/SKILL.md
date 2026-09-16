@@ -1,49 +1,31 @@
 ---
 name: syspilot.orchestration-jarvis
 group: orchestration
-description: "Implements the INVOKE/SEND/RECEIVE/RESPOND orchestration vocabulary using runSubagent() and Jarvis messaging tools. USE FOR: any agent that calls subagents (INVOKE), sends messages to other sessions (SEND), checks its inbox (RECEIVE), or returns results to callers (RESPOND). Also use when agents need to determine whether they were triggered by a message or invoked directly. DO NOT USE FOR: general agent design, skill architecture rules, or spec writing."
+description: "Implements the SEND/RECEIVE/RESPOND orchestration vocabulary using Jarvis session-messaging tools. USE FOR: any agent that passes work to another session (SEND), obtains its triggering instructions (RECEIVE), or returns results to the initiator (RESPOND). Also use when agents need to determine whether they were triggered by a message or started directly. DO NOT USE FOR: general agent design, skill architecture rules, or spec writing."
+implements: [SYSP_SPEC_SKILL_ORCHESTRATION_VERB_MODEL, SYSP_SPEC_SKILL_ORCHESTRATION_GROUP]
+contract: SYSP_SPEC_SKILL_ORCHESTRATION_CONTRACT
+requirements: [SYSP_REQ_SKILL_ORCHESTRATION_VERBS, SYSP_REQ_SKILL_ORCHESTRATION_GROUP]
 ---
 
 # Skill: Agent Orchestration (Jarvis Variant)
 
-> **Implements**: SYSP_SPEC_SKILL_ORCHESTRATION_VERB_MODEL, SYSP_SPEC_SKILL_ORCHESTRATION_GROUP
-> **Group Contract**: SYSP_SPEC_SKILL_ORCHESTRATION_CONTRACT
-> **Requirements**: SYSP_REQ_SKILL_ORCHESTRATION_INVOKE, SYSP_REQ_SKILL_ORCHESTRATION_GROUP
+This is the **asynchronous** variant: SEND/RECEIVE map to Jarvis session
+messaging. It runs each orchestrating agent as its own persistent session.
 
 ## DEFINITIONS
 
 | Term | Semantics |
 |------|-----------|
-| `INVOKE` | Synchronous call. Caller blocks until callee returns a structured result. |
-| `SEND` | Deliver a message to another session. Non-blocking cross-session communication. |
-| `RECEIVE` | Check inbox for pending messages. Returns the next pending message or indicates none available. |
-| `RESPOND` | Deliver result to caller. Auto-detects invocation mode and routes accordingly (see below). Terminal workflow step. |
+| `SEND` | Pass work to another agent. The installed variant decides whether this is asynchronous message delivery or a synchronous call. |
+| `RECEIVE` | Obtain the instructions that triggered this run — a pending inbox message or the task the agent was started with. |
+| `RESPOND` | Deliver result to the initiator. The only mode-dependent verb: routes the result back accordingly (see below). Terminal workflow step. |
 
 ## Verb Mappings
 
 | Verb | Syntax | Concrete Tool Call |
 |------|--------|--------------------|
-| `INVOKE` | `INVOKE <agent>` | `runSubagent("syspilot.<agent>", "<prompt>")` |
-| `SEND` | `SEND <message> to <session>` | `jarvis_sendToSession("<session>", "<message>")` |
-| `RECEIVE` | `RECEIVE` | `jarvis_readMessage()` — returns next pending message or empty |
-| `RESPOND` | `RESPOND` | Mode-detection logic (see below) |
+| `SEND` | `SEND <work> to <agent>` | `jarvis_sendMessage("<session>", "<message>", "<senderSession>")` |
+| `RECEIVE` | `RECEIVE` | `jarvis_receiveMessage("<destination>")` — returns the triggering message or empty |
+| `RESPOND` | `RESPOND` | `jarvis_sendMessage("<originating-session>", "<result>", "<senderSession>")` — return result to sender |
 
-## RESPOND: Delivering Your Result
 
-RESPOND is the terminal step. How you deliver depends on how you were invoked:
-
-- **If you received your instructions via RECEIVE** (a message was present when you checked your inbox at workflow start): deliver your result via SEND to the originating sender.
-- **If you were invoked directly** (no pending message was found via RECEIVE at workflow start): emit the result as direct structured output — `runSubagent()` captures this as its return value.
-
-Do not call `jarvis_readMessage()` inside RESPOND. The invocation mode is already known from the RECEIVE call at workflow start.
-
-## `agents:` Frontmatter
-
-The `agents:` list in YAML frontmatter declares which agents this agent may
-call as subagents via INVOKE. Only listed agents can be invoked.
-
-```yaml
----
-agents: ["syspilot.design", "syspilot.implement", "syspilot.mece"]
----
-```

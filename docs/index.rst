@@ -147,6 +147,7 @@ Guides & Process
    syspilot/namingconventions
    syspilot/process/index
    releasenotes
+   ontology-reference
 
 
 Field Notes
@@ -157,10 +158,14 @@ Field Notes
    :caption: Field Notes
 
    experiences/index
+   experiences/north-star-workflow-less-actors
+   experiences/beyond-agent-memory
    experiences/auto-agent-messaging
    experiences/case-study-self-optimizing-agents
    experiences/customizing-agents-without-forking
    experiences/self-learning-agents
+   experiences/lean-personas-rich-skills
+   experiences/which-model-runs-syspilot
 
 
 Indices
