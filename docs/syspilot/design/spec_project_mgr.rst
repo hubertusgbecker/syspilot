@@ -167,6 +167,6 @@ Project Manager Design
 
    * **description:** ``"Strategic project manager that discusses features, prioritizes backlogs, conducts research, and dispatches Change Requests to the Change Manager."``
    * **user-invocable:** ``true``
-   * **agents:** ``[]``
+   * **agents:** ``["syspilot.cm", "syspilot.release"]``
 
    **File:** ``syspilot.pm.agent.md``

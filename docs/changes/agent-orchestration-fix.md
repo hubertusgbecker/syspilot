@@ -3,49 +3,55 @@
 **Status**: in-progress
 **Branch**: feature/agent-orchestration-fix
 **Created**: 2026-09-16
-**Author**: CM
+**Author**: PM
 **Operation Mode**: autonomous
 
 ---
 
 ## Summary
 
-{One paragraph describing the change}
+Restore the VS Code synchronous orchestration pipeline so every syspilot agent can be invoked only as intended and every agent that SENDs work can reach all of its declared targets through ``runSubagent``. The change corrects the product and installed agent frontmatter, aligns requirements and designs with VS Code's enforced ``agents:`` allowlist, corrects the Subagent orchestration skill guidance, and installs the synchronous orchestration variant in this non-Jarvis workspace. Acceptance is demonstrated when the complete product/installed invocation and SEND-target matrix passes, the patch is clean, and no new documentation-build warning is introduced.
 
 ---
 
 ## Level 0: User Stories
 
-**Status**: ⏳ not started | 🔄 in progress | ✅ completed
+**Status**: ✅ completed
 
 ### Impacted User Stories
 
 | ID | Title | Impact | Notes |
 |----|-------|--------|-------|
-| US_abc | ... | modified | ... |
+| SYSP_US_CM | Change Manager | modified | CM can SEND to its complete pipeline and readiness targets |
+| SYSP_US_PM | Project Manager | modified | PM can SEND changes and releases synchronously |
+| SYSP_US_QM | Quality Manager | modified | QM can SEND checks and findings synchronously |
+| SYSP_US_DESIGN | System Designer | modified | Designer can SEND advisory MECE checks |
+| SYSP_US_VERIFY | Verify Engineer | modified | Verify delegates traceability to Trace as required |
+| SYSP_US_AGENT_ARCH | Clean Agent Architecture | modified | Invocation visibility matches agent roles |
+| SYSP_US_SKILL_ORCHESTRATION | Consistent Agent Orchestration | modified | Subagent variant documents the enforced VS Code allowlist |
 
 ### New User Stories
 
 | ID | Title | Priority |
 |----|-------|----------|
-| US_xxx | As a..., I want..., so that... | mandatory |
+| None | No new user story required | — |
 
 ### Decisions
 
-- Decision 1: ...
-- Decision 2: ...
+- Decision 1: Preserve the existing Manager-to-Engineer workflow and correct its runtime declarations rather than redesigning orchestration.
+- Decision 2: Treat ``agents:`` as an enforced VS Code allowlist; every actual SEND edge must be declared for both orchestration variants.
 
 ### Horizontal Check (MECE)
 
-- [ ] No contradictions with existing User Stories
-- [ ] No redundancies
-- [ ] Gaps identified and addressed
+- [x] No contradictions with existing User Stories
+- [x] No redundancies
+- [x] Gaps identified and addressed
 
 ---
 
 ## Level 1: Requirements
 
-**Status**: ⏳ not started | 🔄 in progress | ✅ completed
+**Status**: ✅ completed
 
 ### Impacted Requirements
 
@@ -53,34 +59,37 @@ Found via links from User Stories above.
 
 | ID | Linked From | Impact | Notes |
 |----|-------------|--------|-------|
-| REQ_abc | US_abc | modified | ... |
+| SYSP_REQ_CM_FRONTMATTER | SYSP_US_CM | modified | Declares all CM SEND targets |
+| SYSP_REQ_PM_FRONTMATTER | SYSP_US_PM | modified | Declares CM and Release targets |
+| SYSP_REQ_QM_FRONTMATTER | SYSP_US_QM | modified | Declares MECE, Trace, and PM targets |
+| SYSP_REQ_DESIGN_FRONTMATTER | SYSP_US_DESIGN | implementation aligned | Existing MECE allowlist requirement is now implemented |
+| SYSP_REQ_VERIFY_FRONTMATTER | SYSP_US_VERIFY | implementation aligned | Existing Trace allowlist requirement is now implemented |
 
 ### New Requirements
 
 | ID | Title | Links | Priority |
 |----|-------|-------|----------|
-| REQ_xxx | ... | US_xxx | mandatory |
+| None | No new requirement required | — | — |
 
 ### Conflicts Detected
 
-- ⚠️ REQ_xxx vs REQ_yyy: {description}
-  - Resolution: {decision}
+None. Existing invocation and delegation requirements remain authoritative.
 
 ### Decisions
 
-- Decision 1: ...
+- Decision 1: Replace Jarvis-only rationale with orchestration-variant-neutral behavior while retaining inherited tool selection.
 
 ### Horizontal Check (MECE)
 
-- [ ] No contradictions with existing Requirements
-- [ ] No redundancies
-- [ ] All new REQs link to User Stories
+- [x] No contradictions with existing Requirements
+- [x] No redundancies
+- [x] No new Requirements introduced
 
 ---
 
 ## Level 2: Design
 
-**Status**: ⏳ not started | 🔄 in progress | ✅ completed
+**Status**: ✅ completed
 
 ### Impacted Design Elements
 
@@ -88,40 +97,51 @@ Found via links from Requirements above.
 
 | ID | Linked From | Impact | Notes |
 |----|-------------|--------|-------|
-| SPEC_abc | REQ_abc | modified | ... |
+| SYSP_SPEC_CM_FRONTMATTER | SYSP_REQ_CM_FRONTMATTER | modified | Complete CM allowlist |
+| SYSP_SPEC_PM_FRONTMATTER | SYSP_REQ_PM_FRONTMATTER | modified | Complete PM allowlist |
+| SYSP_SPEC_QM_FRONTMATTER | SYSP_REQ_QM_FRONTMATTER | modified | Complete QM allowlist |
+| SYSP_SPEC_DESIGN_FRONTMATTER | SYSP_REQ_DESIGN_FRONTMATTER | modified | MECE allowlist aligned |
+| SYSP_SPEC_VERIFY_WORKFLOW | SYSP_REQ_VERIFY_WORKFLOW | modified | Trace delegation made explicit |
+| SYSP_SPEC_VERIFY_FRONTMATTER | SYSP_REQ_VERIFY_FRONTMATTER | modified | Trace allowlist aligned |
+| SYSP_SPEC_SKILL_ORCHESTRATION_VERB_MODEL_SUBAGENT | SYSP_REQ_SKILL_ORCHESTRATION_GROUP | modified | Correct VS Code allowlist semantics |
 
 ### New Design Elements
 
 | ID | Title | Links |
 |----|-------|-------|
-| SPEC_xxx | ... | REQ_abc, REQ_xxx |
+| None | No new design element required | — |
 
 ### Conflicts Detected
 
-- ⚠️ SPEC_xxx vs SPEC_yyy: {description}
-  - Resolution: {decision}
+None after aligning Verify's design with its existing requirement.
 
 ### Decisions
 
-- Decision 1: ...
+- Decision 1: Populate allowlists from actual SEND workflow edges, including completion/finding notifications.
+- Decision 2: Keep leaf Engineer allowlists empty and mark all non-user entry-point agents ``user-invocable: false``.
+- Decision 3: Install ``syspilot.orchestration-subagent`` and remove ``syspilot.orchestration-jarvis`` from the installed instance because this workspace has no ``.jarvis/`` directory.
 
 ### Horizontal Check (MECE)
 
-- [ ] No contradictions with existing Designs
-- [ ] All new SPECs link to Requirements
+- [x] No contradictions with existing Designs
+- [x] No new SPECs introduced
 
 ---
 
 ## Final Consistency Check
 
-**Status**: ⏳ not started | ✅ passed | ❌ failed
+**Status**: ✅ passed
 
 ### Traceability Verification
 
 | User Story | Requirements | Design | Complete? |
 |------------|--------------|--------|-----------|
-| US_xxx | REQ_xxx | SPEC_xxx | ✅ |
-...
+| SYSP_US_CM | SYSP_REQ_CM_FRONTMATTER | SYSP_SPEC_CM_FRONTMATTER | ✅ |
+| SYSP_US_PM | SYSP_REQ_PM_FRONTMATTER | SYSP_SPEC_PM_FRONTMATTER | ✅ |
+| SYSP_US_QM | SYSP_REQ_QM_FRONTMATTER | SYSP_SPEC_QM_FRONTMATTER | ✅ |
+| SYSP_US_DESIGN | SYSP_REQ_DESIGN_FRONTMATTER | SYSP_SPEC_DESIGN_FRONTMATTER | ✅ |
+| SYSP_US_VERIFY | SYSP_REQ_VERIFY_FRONTMATTER | SYSP_SPEC_VERIFY_FRONTMATTER | ✅ |
+| SYSP_US_SKILL_ORCHESTRATION | SYSP_REQ_SKILL_ORCHESTRATION_GROUP | SYSP_SPEC_SKILL_ORCHESTRATION_VERB_MODEL_SUBAGENT | ✅ |
 
 ### Artefakt-Removal-Check
 
@@ -131,23 +151,25 @@ For each removed artefact, run a project-wide grep on all plausible name variant
 
 | Removed Artefact | Class (a): Code/Workflow refs | Class (b): Doc refs | Class (c): Historic Change Docs |
 |------------------|-------------------------------|---------------------|---------------------------------|
-| `{artefact name}` | {files + lines fixed / none} | {files + lines fixed / none} | {count — acceptable historic stranding} |
+| Installed Jarvis orchestration variant | Removed from ``.github/skills`` and replaced by Subagent variant | Active design retains both product variants by intent | Historical Change Documents unchanged |
 
-- [ ] All class (a) active code/workflow references fixed in this CR
-- [ ] All class (b) active documentation references fixed in this CR
-- [ ] Class (c) historical Change Documents accepted as "acceptable historic stranding" and disclosed above
+- [x] All class (a) active code/workflow references fixed in this CR
+- [x] All class (b) active documentation references fixed in this CR
+- [x] Class (c) historical Change Documents accepted as "acceptable historic stranding" and disclosed above
 
 ### Issues Found
 
-- [ ] Issue 1: ...
-- [ ] Issue 2: ...
+- [x] Focused matrix check passes for all product and installed agent copies.
+- [x] ``git diff --check`` passes.
+- [x] Real Sphinx build reaches completion with only two pre-existing ``ontology-architecture`` cross-reference warnings in ``docs/methodology.md`` and ``docs/syspilot/methodology.md``; this CR introduces no warning in a changed file.
+- [x] Live ``runSubagent`` proof requires a new Copilot chat because the current session's agent registry was fixed at session start with the old empty allowlist.
 
 ### Sign-off
 
-- [ ] All levels completed (no ⚠️ DEPRECATED markers remaining)
-- [ ] All conflicts resolved
-- [ ] Traceability verified
-- [ ] Ready for implementation
+- [x] All levels completed
+- [x] All conflicts resolved
+- [x] Traceability verified
+- [x] Implementation complete and ready for integration
 
 ---
 
@@ -167,21 +189,19 @@ section are unaffected — the section is additive, never required retroactively
 
 | # | Level | Element ID | Finding | Severity |
 |---|-------|------------|---------|----------|
-| 1 | L? | {ID} | {description} | high / medium / low |
+| 1 | Validation | Baseline docs build | Two unrelated existing missing cross-reference warnings prevent a globally clean ``-W`` build | low |
 
 #### PM Decisions
 
 | # | Finding # | Decision | Rationale |
 |---|-----------|----------|-----------|
-| 1 | 1 | fix-now / defer / accept-as-is | {rationale} |
+| 1 | 1 | defer | Existing ontology cross-reference defect is outside orchestration scope and occurs in unchanged files; track separately |
 
 ---
 
 ## Appendix: Link Discovery Results
 
-```
-{paste output from get_need_links.py as needed}
-```
+Existing US → REQ → SPEC links listed in the Final Consistency Check resolve in the built Sphinx needs graph; no new IDs were introduced.
 
 ---
 
