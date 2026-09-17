@@ -14,26 +14,49 @@
 
 Cover 100% of your specs with 6x less tokens. Links are deterministic — search is probabilistic. syspilot gives your agents the map, not the flashlight. Built on [sphinx-needs](https://sphinx-needs.readthedocs.io/) by [useblocks](https://useblocks.com). Powered by [GitHub Copilot](https://github.com/features/copilot).
 
-## Quick Start
+## Installation
 
-**Linux / Mac / GitHub Codespaces:**
+Install [Git](https://git-scm.com/) and [uv](https://docs.astral.sh/uv/), then
+run the command for your harness from the root of the target Git repository.
+
+Production harnesses: GitHub Copilot in VS Code and OpenCode.
+
+### GitHub Copilot in VS Code
+
 ```bash
-mkdir -p .github/agents && curl -fsSL \
-  "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" \
-  -o .github/agents/syspilot.setup.agent.md
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness vscode
 ```
 
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path .github/agents | Out-Null
-Invoke-WebRequest `
-  -Uri "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/agents/syspilot.setup.agent.md" `
-  -OutFile ".github/agents/syspilot.setup.agent.md"
+### OpenCode
+
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness opencode
 ```
 
-Then open VS Code Copilot Chat and run `@syspilot.setup`.
+Run the same command again to update. Run one command for each harness used in
+the repository. The defaults are the current directory, repository
+`hubertusgbecker/syspilot`, and branch `main`. Synchronous orchestration is
+installed deterministically.
+For a fork or branch, change the URL and add `--repository <owner>/<repo>
+--branch <branch>`.
 
-That's it. The setup agent handles dependencies, configuration, and validation automatically.
+The command installs only the selected harness's native files, the stable
+`.syspilot/installer.py` runtime, shared resources in `.syspilot/skills/` and
+`.syspilot/templates/`, and missing documentation bootstrap files.
+Installed Setup uses that runtime directly for later updates. Installation
+rejects target-path links and rolls back only syspilot-owned mutable paths, so
+unrelated project files and concurrent unrelated changes remain untouched.
+
+### Experimental / next target
+
+Claude Code and Qoder adapters are experimental. Their deterministic fixture
+generation remains available for development, but neither is a public CLI
+target until clean install, update, rollback, and live native invocation UAT
+are complete.
+
+GitHub Copilot CLI has been evaluated for artifact compatibility but is not
+production-certified. Production support for GitHub Copilot currently means
+GitHub Copilot in VS Code.
 
 ## What You Get
 
@@ -75,9 +98,15 @@ Includes methodology, naming conventions, and traceability matrices.
 
 ## Requirements
 
-- **VS Code** + **GitHub Copilot** (license required)
-- **Python 3.10+** with `sphinx` and `sphinx-needs` pre-installed (`pip install sphinx sphinx-needs`)
-- **[`enthali.jarvis-core`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-core)** VS Code extension, installed and enabled on your default agent's tool set — required for multi-agent orchestration (agents hand off work via `SEND`/session messaging). If disabled, agents silently lose this ability instead of erroring.
+- **Git**
+- **[uv](https://docs.astral.sh/uv/)**
+- **GitHub Copilot in VS Code** or **OpenCode**
 
-> If `sphinx-needs` is missing, `@syspilot.setup` prints install instructions and stops — it does not auto-install packages.
+`uv` resolves the exact Python and package dependencies declared by the remote
+PEP 723 script. No project `.venv`, preinstalled Python packages, or `pip`
+setup is required.
+
+## License
+
+[Apache License 2.0](LICENSE)
 

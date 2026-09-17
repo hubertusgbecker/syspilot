@@ -1,7 +1,7 @@
 ---
 name: syspilot.orchestration-subagent
 group: orchestration
-description: "Implements the SEND/RECEIVE/RESPOND orchestration vocabulary synchronously using runSubagent() only — no session-messaging infrastructure required. USE FOR: any agent that passes work to another agent (SEND), obtains its triggering instructions (RECEIVE), or returns results to the initiator (RESPOND). This is the graceful-degradation variant for workspaces without Jarvis. DO NOT USE FOR: general agent design, skill architecture rules, or spec writing."
+description: "Implements the SEND/RECEIVE/RESPOND orchestration vocabulary synchronously using the installed harness's native subagent task primitive. USE FOR: any agent that passes work to another agent (SEND), obtains its triggering instructions (RECEIVE), or returns results to the initiator (RESPOND). This is the graceful-degradation variant for workspaces without Jarvis. DO NOT USE FOR: general agent design, skill architecture rules, or spec writing."
 ---
 
 # Skill: Agent Orchestration (Subagent Variant)
@@ -10,10 +10,10 @@ description: "Implements the SEND/RECEIVE/RESPOND orchestration vocabulary synch
 > **Group Contract**: SYSP_SPEC_SKILL_ORCHESTRATION_CONTRACT
 > **Requirements**: SYSP_REQ_SKILL_ORCHESTRATION_VERBS, SYSP_REQ_SKILL_ORCHESTRATION_GROUP
 
-This is the **synchronous** variant: every verb maps to `runSubagent()`. It
-requires no session-messaging infrastructure and is the graceful-degradation
-path for workspaces without Jarvis. Agent documents are identical to the
-asynchronous variant — only the mapping below differs.
+This is the **synchronous** variant. It requires no session-messaging
+infrastructure and is the graceful-degradation path for workspaces without
+Jarvis. Agent documents are identical to the asynchronous variant; only the
+harness binding below differs.
 
 ## DEFINITIONS
 
@@ -33,20 +33,20 @@ asynchronous variant — only the mapping below differs.
 
 ## RECEIVE: Obtaining Your Assignment
 
-In the synchronous variant there is no inbox. Your assignment is the task you
-were started with — the prompt passed into `runSubagent`. RECEIVE is therefore
-a no-op that simply reads those starting instructions.
+In the synchronous variant there is no inbox. Your assignment is the task the
+caller used to start this agent. RECEIVE is therefore a no-op that simply reads
+those starting instructions.
 
 ## RESPOND: Delivering Your Result
 
 RESPOND is the terminal step. In this variant it is always plain output: emit
-your structured result as your final message. The calling `runSubagent`
-captures it as the return value. There is no active send-back and no inbox.
+your structured result as your final message. The native caller captures it as
+the return value. There is no active send-back and no inbox.
 
 ## `agents:` Frontmatter
 
-On VS Code, the `agents:` field is enforced by the platform as a hard
-allowlist for `runSubagent` — an agent can only SEND to names listed here.
+The installed harness enforces the `agents:` source field through its native
+subagent permission mapping; an agent can only SEND to names listed here.
 (An earlier version of this skill assumed the field was inert documentation
 that "does not constrain which agents an agent may SEND to at runtime";
 that assumption does not hold on VS Code and has been corrected.)

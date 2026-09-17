@@ -47,7 +47,7 @@ Change Manager Design
    * **Change Auditability** — At every point during and after a change,
      the Change Document (``docs/changes/<name>.md``) reflects the true state —
      including after abort or failure. PM creates the document by copying
-     ``.github/templates/change-document.md`` verbatim and filling header +
+     ``.syspilot/templates/change-document.md`` verbatim and filling header +
      ``## Summary``. CM fills all engineering sections (L0/L1/L2, MECE,
      Traceability, Artefakt-Removal-Check, Sign-off) of the same file — CM
      never creates the document and never replaces the template skeleton with

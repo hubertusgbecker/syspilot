@@ -22,9 +22,16 @@ Requirements for external and internal documentation artifacts.
    **Acceptance Criteria:**
 
    * AC-1: README contains a project overview explaining the core value proposition
-   * AC-2: README contains platform-specific installation instructions (Linux/Mac, Windows)
-   * AC-3: README contains a quick-start section or link to getting started
+   * AC-2: README Getting Started lists Git and ``uv`` as prerequisites and
+     contains separate remote PEP 723 install commands for VS Code GitHub
+     Copilot (``vscode``) and OpenCode
+   * AC-3: README states that commands run in the target Git repository, are
+     rerun unchanged for updates, and accept optional repository/branch inputs
    * AC-4: README lists available agents with brief descriptions
+   * AC-5: README does not require pip, bare Python setup, or pre-placement of
+     Setup and does not advertise Claude Code or Qoder as production-supported
+   * AC-6: README states that Claude CLI installation and authentication are
+     external prerequisites when Claude Code is used
 
 
 .. req:: Methodology Documentation

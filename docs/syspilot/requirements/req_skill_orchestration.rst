@@ -76,7 +76,7 @@ Requirements for agent orchestration patterns.
    :status: draft
    :priority: mandatory
    :tags: agent-v2, skill, orchestration, architecture
-   :links: SYSP_US_SKILL_ORCHESTRATION
+   :links: SYSP_US_SKILL_ORCHESTRATION, SYSP_US_HARNESS_PORTABILITY
 
    **Description:**
    The orchestration skill SHALL declare ``group: orchestration`` in its
@@ -99,6 +99,7 @@ Requirements for agent orchestration patterns.
    * AC-3: Given the orchestration group contract, When inspected, Then it contains a DEFINITIONS section declaring SEND, RECEIVE, RESPOND
    * AC-4: Given the orchestration group, When inspected, Then exactly two variants exist — one asynchronous (session messaging) and one synchronous (in-process)
    * AC-5: Given either variant is installed, When any agent uses the verbs, Then the agent documents require no modification to switch variants
+   * AC-6: Given a harness without native session-messaging capability, When the orchestration skill variant is installed, Then the synchronous variant is selected automatically as the harness-appropriate fallback
 
 
 .. req:: Agent Workflow Vocabulary
