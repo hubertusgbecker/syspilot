@@ -6,6 +6,20 @@
 > consistent; CalVer was a brief interlude, reverted per the Release Agent
 > Tailoring Workflow (see `release-agent-tailoring-semver`).
 
+## v0.9.1.1 - 2026-09-19
+
+### Summary
+
+Exceptional four-component release delivering production support for Claude Code, harness-portable deterministic installation, corrected synchronous agent orchestration, and hidden project-tailoring files. Qoder is available as an explicitly experimental target with deterministic, checksummed package staging; native application import and orchestration remain deferred.
+
+### Included Change Documents
+
+- **Agent orchestration fix** (`agent-orchestration-fix.md`) - Corrects invocation visibility and complete `runSubagent` allowlists, removes model pins, and selects the synchronous orchestration variant for this workspace.
+- **Harness interoperability** (`harness-interop.md`) - Introduces the deterministic installer runtime and native adaptation for VS Code, Claude Code, OpenCode, and staged Qoder packages, including transactional update and rollback behavior.
+- **Hide tailoring files from picker** (`hide-tailoring-files-from-picker.md`) - Marks instance tailoring files as non-invocable and codifies that requirement for future tailoring files.
+- **Production Claude Code and Qoder scope** (`production-claude-qoder.md`) - Promotes Claude Code to the production-parity tier and defines Qoder's experimental, installable package-staging tier with deferred native import and orchestration.
+- **Production Claude Code and Qoder validation** (`val-production-claude-qoder.md`) - Preserves the initial failed validation findings that drove the scope and implementation corrections; the final change document records subsequent closure and release clearance.
+
 ## v0.9.1 - 2026-08-01
 
 ### Summary
