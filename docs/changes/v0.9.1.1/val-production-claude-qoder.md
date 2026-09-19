@@ -1,9 +1,12 @@
 # Validation Report: production-claude-qoder
 
-**Change Document:** `docs/changes/v0.9.1/production-claude-qoder.md`  
-**Branch:** `feature/production-claude-qoder`  
-**Verification date:** 2026-09-18  
-**Result:** FAILED  
+**Change Document:** `docs/changes/v0.9.1.1/production-claude-qoder.md`
+
+**Branch:** `feature/production-claude-qoder`
+
+**Verification date:** 2026-09-18
+
+**Result:** FAILED
 **Qoder live production clearance:** BLOCKED independently of deterministic implementation correctness
 
 ## Findings
