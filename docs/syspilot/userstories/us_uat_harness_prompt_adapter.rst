@@ -30,9 +30,10 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_PROMPT_ADAPTER``.
       representative request invokes the expected Manager behavior.
    2. OpenCode receives a thin native command for each source Manager prompt,
       and the same representative request invokes equivalent Manager behavior.
-   3. When the optional Claude Code experimental fixture is available, it
-      receives no separate prompt file and invokes the Manager through its
-      native agent or Skill surface; absence does not block production UAT.
-   4. When the optional Qoder experimental fixture is available, it receives
-      no separate prompt file and invokes the Manager through its native
-      Custom Agent surface; absence does not block production UAT.
+   3. Claude Code provides a production-ready native command, prompt, agent,
+      or Skill invocation surface for each Manager workflow, and a
+      representative request invokes equivalent Manager behavior.
+   4. Qoder's native import of the staged Custom Agent package, and any
+      invocation surface it might provide for each Manager workflow, are
+      deferred future scope for this change and are not verified here;
+      independent production-parity clearance for Qoder is not evaluated.

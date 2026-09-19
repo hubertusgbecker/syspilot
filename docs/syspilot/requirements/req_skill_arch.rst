@@ -46,6 +46,13 @@ Instructions, Rules) and the optional Group / DEFINITIONS extension.
      for native discovery and parsing
 
 
+
+   * **AC6**: Every production-parity harness (VS Code GitHub Copilot,
+     OpenCode, Claude Code) MUST expose native, discoverable Skills through
+     the required frontmatter, reported independently. Qoder MUST expose the
+     same Skill content inside its checksummed package-staging artifact;
+     native in-app discoverability for Qoder is deferred future scope and is
+     not required by this criterion.
 .. req:: Skill Instructions Definition
    :id: SYSP_REQ_SKILL_ARCH_INSTRUCTIONS
    :status: draft

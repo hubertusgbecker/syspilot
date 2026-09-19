@@ -15,28 +15,31 @@ deterministic runtime directly.
 | Layer | What it is | Where it lives |
 |-------|-----------|----------------|
 | **Product** | The generic agent toolkit — agents, skills, scripts, templates | `syspilot/` |
-| **Installed Copy** | Native files for the selected production harness plus shared runtime resources | `.github/` or `.opencode/`, with `.syspilot/` |
+| **Installed Copy** | The explicitly selected harness target (production or experimental) plus shared runtime resources | `.github/`, `.claude/`, `.opencode/`, or `.syspilot/qoder/syspilot-qoder-plugin.zip`, with `.syspilot/` |
 
 The deterministic Installer copies Product files into a project. Installed
 Setup launches that runtime for updates. Specifications live in
 `docs/syspilot/` and cover all agents at the product level.
 
-**Harness installs.** The current support matrix is:
+**Harness installs.** The harness selector matrix is:
 
 | Harness | Status | Evidence boundary |
 |---------|--------|-------------------|
 | GitHub Copilot in VS Code | Production | Native project agents and prompts remain byte-exact to product source. |
+| Claude Code | Production | Project-scoped native agents, Skills, and commands are installed after external Claude Code installation and authentication. |
 | OpenCode | Production | Native configuration parsing and live Manager-to-Engineer Task delegation are accepted. |
-| Claude Code | Experimental | Native discovery and adapter validation pass, but authenticated invocation and delegation are unexecuted. |
-| Qoder | Experimental | Deterministic adapter fixtures exist; live native acceptance is unexecuted. |
-| GitHub Copilot CLI | Evaluated, not production-certified | Artifact compatibility was checked, but no GitHub.com Copilot credential was available for live invocation. |
+| Qoder | Experimental, installable | The Installer stages `.syspilot/qoder/syspilot-qoder-plugin.zip` as deterministic installability evidence. Documented UI import is external; native in-app import and autonomous Manager-to-Engineer orchestration clearance are deferred future work. |
 
 GitHub Copilot production support refers to the VS Code integration, not the
 GitHub Copilot CLI. Agent/Skill content (Soul, Duties, Workflow, Instructions,
 Rules) is a single source of truth — never
 forked per harness. Only the frontmatter block and target directory are
-adapted per harness. Each install command selects exactly one production
-harness and writes no other harness directory. See `SYSP_SPEC_HARNESS_TARGET_MATRIX` and
+adapted per harness. Each install command selects exactly one harness target
+(production or experimental) and writes no other harness target. For Qoder,
+the selected target is the deterministic Plugin archive; the Installer
+neither performs the external UI import nor reports native installation or
+autonomous orchestration clearance.
+See `SYSP_SPEC_HARNESS_TARGET_MATRIX` and
 `docs/syspilot/design/spec_harness_adapters.rst` for the full mapping and
 limitations.
 

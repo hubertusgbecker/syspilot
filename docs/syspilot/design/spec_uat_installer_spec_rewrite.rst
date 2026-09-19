@@ -12,18 +12,23 @@ Expected outcomes for ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE``.
 
    **TC-IDR-INITIAL - Remote-runtime clean installation**
 
-   *Action:* Run the remote command against clean targets with ``--harness
-   vscode`` and ``--harness opencode`` separately.
+  *Action:* Run the remote command against clean targets with ``--harness
+  vscode``, ``--harness claude``, ``--harness opencode``, and ``--harness
+  qoder`` separately.
 
    *Expected result:*
 
    * [ ] Every source request uses one resolved revision from the explicit
      repository and branch; no local product or installed harness tree is a source.
-   * [ ] Each run writes only its explicit harness target,
+   * [ ] Each run writes only its explicit harness target or, for Qoder,
+     exactly ``.syspilot/qoder/syspilot-qoder-plugin.zip`` with the validated
+     manifest and package digest,
      ``.syspilot/installer.py``, shared ``.syspilot/{skills,templates}``
      resources, and missing-only documentation bootstrap files.
    * [ ] The stable runtime bytes equal the selected revision's runtime bytes.
    * [ ] Validation succeeds before one installation commit and success result.
+   * [ ] Each harness has an independent result; a Claude Code or Qoder failure
+     cannot be masked by another harness's pass.
 
    *Traces to:* ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE`` AC-1
 
@@ -31,8 +36,8 @@ Expected outcomes for ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE``.
 
    **TC-IDR-UPDATE - Idempotent repeated command**
 
-   *Action:* Repeat each successful command unchanged, then invoke installed
-   Setup with the same inputs.
+  *Action:* Repeat each successful command unchanged for all four harnesses,
+  then invoke each installed Setup entry with the same inputs.
 
    *Expected result:*
 
@@ -80,8 +85,9 @@ Expected outcomes for ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE``.
 
    **TC-IDR-BOUNDARY - Read-only acquisition and protected mutation**
 
-   *Action:* Inject source resolution/fetch/parse failures before the checkpoint,
-   then inject every mutation and later failure after it.
+  *Action:* For each of the four harness values, inject source
+  resolution/fetch/parse failures before the checkpoint, then inject every
+  mutation and later failure after it.
 
    *Expected result:*
 
@@ -100,6 +106,13 @@ Expected outcomes for ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE``.
      advances the same ref; injected rollback reports a conflict, preserves the
      concurrent commit and ancestry, and restores only non-conflicting owned
      file/index state using compare-and-swap.
+   * [ ] Clean installation, update, injected-failure restoration, and rollback
+     are each reported separately for Claude Code production installation and
+     Qoder experimental-tier package staging.
+     The Qoder result is ``staged`` only; it never reports native import or a
+     completed external Qoder UI lifecycle. Qoder Manager-to-Engineer
+     orchestration is out of scope for this change and explicitly deferred to
+     a future change, not a gate cleared or blocked here.
 
    *Traces to:* ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE`` AC-5
 
@@ -314,3 +327,11 @@ Expected outcomes for ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE``.
    **Automation rule:** executable fixture evidence is required for runtime,
    adapter, transaction, and ordering outcomes. Prose matching and manual
    best-effort recovery are not acceptance evidence.
+
+  **Exclusive ownership:** This design is the sole lifecycle acceptance owner
+  for clean installation, update, injected failure, rollback, validation-gated
+  commit, and checkpoint cleanup across ``vscode``, ``claude``, ``opencode``,
+  and ``qoder``. For Qoder, this ownership ends at staged-package validity and
+  reversible project state; it does not include external UI import. Native
+  discovery/loading evidence belongs exclusively to
+  SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.

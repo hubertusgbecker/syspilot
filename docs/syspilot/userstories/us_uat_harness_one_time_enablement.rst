@@ -26,9 +26,14 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_ONE_TIME_ENABLEMENT``.
 
    **Acceptance Criteria:**
 
-   1. A remote raw-URL ``uv run --no-project`` command clean-installs each
-      production-supported harness (VS Code and OpenCode) without a
-      pre-existing Setup file.
+   1. The same remote raw-URL ``uv run --no-project`` command mechanism,
+      invoked separately with an explicit harness selection each time (per
+      ``SYSP_US_HARNESS_INSTALL`` AC5), clean-installs each
+      production-parity harness (VS Code GitHub Copilot, OpenCode, and
+      Claude Code) without a pre-existing Setup file; each passes
+      independently. The same command mechanism, invoked with the
+      ``qoder`` selection, clean-stages the Qoder package archive as the
+      experimental, installable tier's acceptance evidence.
    2. Re-running the identical command updates idempotently.
    3. Installed Setup directly invokes ``.syspilot/installer.py`` without
       Agent, Task, or ``runSubagent`` installation delegation.

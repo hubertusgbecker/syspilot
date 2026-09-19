@@ -19,8 +19,9 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_AGENT_ADAPTER``.
    **Artifacts Under Test:**
 
    * One generated Manager agent and one generated Engineer agent for each
-     production harness; Claude Code and Qoder counterparts are optional
-     experimental fixtures
+     production-parity harness (VS Code GitHub Copilot, OpenCode, Claude
+     Code), plus the staged Qoder package archive as the experimental,
+     installable tier's artifact
    * Their corresponding source ``*.agent.md`` files
    * The field mapping in ``SYSP_SPEC_HARNESS_AGENT_ADAPTER``
 
@@ -37,17 +38,20 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_AGENT_ADAPTER``.
    1. Adapted Markdown bodies are byte-for-byte identical to their source
       except for the explicitly permitted structural binding adaptation.
    2. The Claude Code fixture contains all 13 product agents with required,
-      valid, unique native ``name`` values mapped from dotted source IDs;
-      supported fields are retained and fields with no native equivalent are
-      dropped.
+      valid, unique native ``name`` values mapped from dotted source IDs and
+      ``user-invocable: false`` as a VS Code compatibility extension. Claude
+      native names and Agent-tool bindings remain intact; live Claude Code
+      discovery and VS Code picker evidence are owned exclusively by
+      ``SYSP_US_UAT_HARNESS_TARGET_MATRIX``.
    3. OpenCode frontmatter expresses primary/subagent mode and SEND
       permissions without changing workflow prose.
-   4. When the optional Qoder fixture is available, frontmatter contains only
-      documented mappings and does not invent equivalents for unsupported
-      fields.
-   5. Representative Manager and Engineer agents load in production harnesses
-      and retain their specified guidance. Claude CLI validation and
-      ``claude --agent syspilot-qm`` prove discovery reaches authentication or
-      model execution; an external authentication failure is recorded
-      separately from, and must not be mistaken for, agent-not-found. Claude
-      remains experimental until authenticated invocation and delegation pass.
+   4. Qoder frontmatter, as staged inside the checksummed package archive,
+      contains only documented mappings and does not invent equivalents for
+      unsupported fields. Native in-app loading of that staged content is
+      deferred future scope and is not evaluated here.
+   5. Representative Manager and Engineer agents retain their specified
+      guidance when adapted for each production-parity harness; live
+      native-loading acceptance is owned exclusively by
+      ``SYSP_US_UAT_HARNESS_TARGET_MATRIX`` and SHALL NOT be inferred from
+      this criterion. Qoder's equivalent native-loading check is deferred to
+      the future change that adds native import evidence.

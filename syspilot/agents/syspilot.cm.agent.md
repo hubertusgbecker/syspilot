@@ -3,7 +3,7 @@ name: "Change Manager"
 agent: syspilot.cm
 description: "Central orchestrator of the change workflow. Receives Change Requests, coordinates engineers in sequence, enforces quality gates, and reports completion with full traceability."
 user-invocable: true
-agents: ["syspilot.design", "syspilot.uat", "syspilot.implement", "syspilot.mece", "syspilot.trace", "syspilot.docu", "syspilot.pm", "syspilot.qm"]
+agents: ["System Designer", "Test Designer", "Dev Engineer", "MECE Engineer", "Trace Engineer", "Documentation Engineer", "Project Manager", "Quality Manager"]
 ---
 
 # syspilot Change Manager

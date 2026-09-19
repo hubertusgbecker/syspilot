@@ -73,7 +73,7 @@ Requirements for agent orchestration patterns.
 
 .. req:: Orchestration Skill Group Membership
    :id: SYSP_REQ_SKILL_ORCHESTRATION_GROUP
-   :status: draft
+   :status: approved
    :priority: mandatory
    :tags: agent-v2, skill, orchestration, architecture
    :links: SYSP_US_SKILL_ORCHESTRATION, SYSP_US_HARNESS_PORTABILITY
@@ -100,8 +100,11 @@ Requirements for agent orchestration patterns.
    * AC-4: Given the orchestration group, When inspected, Then exactly two variants exist — one asynchronous (session messaging) and one synchronous (in-process)
    * AC-5: Given either variant is installed, When any agent uses the verbs, Then the agent documents require no modification to switch variants
    * AC-6: Given a harness without native session-messaging capability, When the orchestration skill variant is installed, Then the synchronous variant is selected automatically as the harness-appropriate fallback
-
-
+   * AC-7: Given a representative autonomous Manager workflow on Claude Code, When the Manager
+         runs, Then it completes every Engineer delegation required by that workflow and consumes every
+         returned result without user approval gates between stages; invocation alone or one successful
+         delegation is insufficient. Qoder is not evaluated against this criterion for this change;
+         its Manager-to-Engineer orchestration evidence is explicitly deferred to a future change.
 .. req:: Agent Workflow Vocabulary
    :id: SYSP_REQ_SKILL_ORCHESTRATION_AGENT_VOCAB
    :status: draft

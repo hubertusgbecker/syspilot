@@ -13,6 +13,7 @@ import threading
 import unittest
 import urllib.error
 import uuid
+import zipfile
 from contextlib import redirect_stderr, redirect_stdout
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -141,6 +142,25 @@ class TestExecutableHarnessAdapters(unittest.TestCase):
         self.assertEqual(body, b"# Manager\nbody without terminal newline")
         self.assertFalse(adapted.startswith(b"\xef\xbb\xbf"))
         self.assertFalse(adapted.endswith(b"\n"))
+
+    def test_opencode_resolves_display_names_to_agent_identities(self):
+        source = frontmatter(
+            'description: "Manager"\nagents: ["Dev Engineer"]',
+            b"# Manager\n",
+        )
+
+        metadata, _ = parse_frontmatter(
+            adapt_agent(
+                source,
+                "opencode",
+                agent_identities={"Dev Engineer": "syspilot.implement"},
+            )
+        )
+
+        self.assertEqual(
+            metadata["permission"]["task"],
+            {"*": "deny", "syspilot.implement": "allow"},
+        )
 
     def test_user_invocable_opencode_agent_is_primary_without_allowlist(self):
         source = frontmatter(
@@ -466,6 +486,7 @@ print(json.dumps({'success': result.success, 'error': result.error}))
             {
                 "name": "syspilot-cm",
                 "description": "Manager: coordinates work",
+                "user-invocable": False,
                 "tools": ["Agent"],
             },
         )
@@ -572,6 +593,73 @@ print(json.dumps({'success': result.success, 'error': result.error}))
         self.assertGreaterEqual(second.summary[".claude/agents"].updated, 1)
         self.assertEqual(tree_bytes(self.target / ".opencode"), opencode_before)
         self.assertFalse((self.target / ".github").exists())
+
+    def test_qoder_stages_one_deterministic_archive_without_live_tree(self):
+        first = self._install(initiating_harness="qoder")
+        archive = self.target / ".syspilot/qoder/syspilot-qoder-plugin.zip"
+        first_bytes = archive.read_bytes() if archive.is_file() else None
+        second = self._install(initiating_harness="qoder")
+
+        self.assertTrue(first.success, first.error)
+        self.assertTrue(second.success, second.error)
+        self.assertTrue(archive.is_file())
+        self.assertFalse((self.target / ".qoder").exists())
+        self.assertEqual(first_bytes, archive.read_bytes())
+        self.assertIn(".syspilot/qoder", first.summary)
+        self.assertNotIn(".qoder/agents", first.summary)
+
+        with zipfile.ZipFile(archive) as package:
+            members = package.namelist()
+            payload_digests = {
+                member: hashlib.sha256(package.read(member)).hexdigest()
+                for member in members
+                if member != "plugin.json"
+            }
+            self.assertEqual(members, sorted(members))
+            self.assertIn("plugin.json", members)
+            self.assertTrue(any(member.startswith("agents/") for member in members))
+            self.assertTrue(any(member.startswith("skills/") for member in members))
+            self.assertFalse(any(member.startswith("prompts/") for member in members))
+            self.assertTrue(all(not PurePosixPath(member).is_absolute() for member in members))
+            self.assertTrue(all(".." not in PurePosixPath(member).parts for member in members))
+            self.assertTrue(all(member.date_time == (1980, 1, 1, 0, 0, 0) for member in package.infolist()))
+            manifest = json.loads(package.read("plugin.json"))
+
+        self.assertEqual(manifest["id"], "syspilot-qoder")
+        self.assertEqual(manifest["source_revision"], self.source.revision)
+        self.assertEqual(manifest["members"], payload_digests)
+        result = json.loads(installer_module._result_json(first))
+        self.assertEqual(result["status"], "staged")
+        self.assertEqual(result["package_digest"], hashlib.sha256(archive.read_bytes()).hexdigest())
+
+    def test_qoder_failure_rolls_back_archive_and_preserves_global_identity(self):
+        global_root = self.base / "global-qoder-state"
+        global_file = global_root / "settings.json"
+        global_directory = global_root / "plugins"
+        before = {
+            path: installer_module._path_identity(path)
+            for path in (global_file, global_directory)
+        }
+        original_tree = tree_bytes(self.target)
+        original_directories = tree_directories(self.target)
+
+        with patch.dict(os.environ, {"HOME": str(global_root)}, clear=False):
+            result = self._install(
+                initiating_harness="qoder", failure_phase="target_write"
+            )
+
+        self.assertFalse(result.success)
+        self.assertEqual(tree_bytes(self.target), original_tree)
+        self.assertEqual(tree_directories(self.target), original_directories)
+        self.assertFalse((self.target / ".syspilot/qoder/syspilot-qoder-plugin.zip").exists())
+        self.assertFalse((self.target / ".qoder").exists())
+        self.assertEqual(
+            {
+                path: installer_module._path_identity(path)
+                for path in (global_file, global_directory)
+            },
+            before,
+        )
 
     def test_shared_resources_use_stable_harness_neutral_paths(self):
         result = self._install()
@@ -2314,6 +2402,52 @@ class TestRealProductAcceptance(unittest.TestCase):
         self.assertEqual(metadata["agents"], [])
         self.assertEqual(metadata["version"], "v0.9.1")
 
+    def test_vscode_change_manager_bootstrap_configuration(self):
+        target_agent_files = (
+            "syspilot.design.agent.md",
+            "syspilot.uat.agent.md",
+            "syspilot.implement.agent.md",
+            "syspilot.mece.agent.md",
+            "syspilot.trace.agent.md",
+            "syspilot.docu.agent.md",
+            "syspilot.pm.agent.md",
+            "syspilot.qm.agent.md",
+        )
+        for agent_root in (ROOT / "syspilot/agents", ROOT / ".github/agents"):
+            expected_names = [
+                parse_frontmatter((agent_root / filename).read_bytes())[0]["name"]
+                for filename in target_agent_files
+            ]
+            metadata, _ = parse_frontmatter(
+                (agent_root / "syspilot.cm.agent.md").read_bytes()
+            )
+            with self.subTest(agent_root=agent_root):
+                self.assertEqual(metadata["agents"], expected_names)
+
+        settings_path = ROOT / ".vscode/settings.json"
+        self.assertTrue(settings_path.is_file(), "workspace settings are missing")
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        self.assertIs(
+            settings.get("chat.subagents.allowInvocationsFromSubagents"), True
+        )
+
+    def test_vscode_agent_allowlists_use_declared_display_names(self):
+        for agent_root in (ROOT / "syspilot/agents", ROOT / ".github/agents"):
+            agents = {
+                path: parse_frontmatter(path.read_bytes())[0]
+                for path in agent_root.glob("*.agent.md")
+            }
+            declared_names = {
+                metadata["name"]
+                for metadata in agents.values()
+                if "name" in metadata
+            }
+
+            for path, metadata in agents.items():
+                unresolved = set(metadata.get("agents") or []) - declared_names
+                with self.subTest(agent=path.relative_to(ROOT)):
+                    self.assertEqual(unresolved, set())
+
     def test_installed_change_launcher_locates_shared_template(self):
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary)
@@ -2395,11 +2529,23 @@ class TestRealProductAcceptance(unittest.TestCase):
             self.assertTrue(
                 all(isinstance(metadata.get("description"), str) for metadata in agents.values())
             )
+            source_agents = {
+                path: parse_frontmatter(path.read_bytes())[0]
+                for path in (ROOT / "syspilot/agents").glob("*.agent.md")
+            }
+            identity_by_name = {
+                metadata["name"]: metadata["agent"]
+                for metadata in source_agents.values()
+                if "name" in metadata and "agent" in metadata
+            }
             for source_path in (ROOT / "syspilot/agents").glob("*.agent.md"):
-                source_metadata, _ = parse_frontmatter(source_path.read_bytes())
+                source_metadata = source_agents[source_path]
                 source_allowlist = source_metadata.get("agents") or []
                 generated = agents[source_path.name.removesuffix(".agent.md")]
-                mapped_targets = [target.replace(".", "-") for target in source_allowlist]
+                mapped_targets = [
+                    identity_by_name[target].replace(".", "-")
+                    for target in source_allowlist
+                ]
                 self.assertTrue(set(mapped_targets).issubset(native_names))
                 if source_allowlist and source_metadata.get("user-invocable") is True:
                     self.assertEqual(
@@ -2418,6 +2564,75 @@ class TestRealProductAcceptance(unittest.TestCase):
             self.assertIn("built-in Agent tool", orchestration)
             self.assertIn("`syspilot-<agent>`", orchestration)
             self.assertNotIn("runSubagent", orchestration)
+
+    def test_generated_claude_agents_are_hidden_from_vscode_picker(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary)
+            result = self._install_product(target, harness="claude")
+            self.assertTrue(result.success, result.error)
+
+            claude_agents = {
+                path.stem: parse_frontmatter(path.read_bytes())[0]
+                for path in (target / ".claude/agents").glob("*.md")
+            }
+            self.assertEqual(len(claude_agents), 13)
+            self.assertFalse(claude_agents["syspilot.release"]["user-invocable"])
+            self.assertTrue(
+                all(
+                    metadata.get("user-invocable") is False
+                    for metadata in claude_agents.values()
+                )
+            )
+
+            source_agents = {
+                path.stem.removesuffix(".agent"): parse_frontmatter(
+                    path.read_bytes()
+                )[0]
+                for path in (ROOT / "syspilot/agents").glob("*.agent.md")
+            }
+            visible_source_roles = {
+                name
+                for name, metadata in source_agents.items()
+                if metadata.get("user-invocable") is True
+            }
+            visible_claude_roles = {
+                name
+                for name, metadata in claude_agents.items()
+                if metadata.get("user-invocable", True) is True
+            }
+            self.assertEqual(visible_source_roles, {"syspilot.cm", "syspilot.pm", "syspilot.qm", "syspilot.setup"})
+            self.assertEqual(visible_claude_roles, set())
+
+    def test_generated_opencode_agents_use_native_target_identities(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary)
+            result = self._install_product(target)
+            self.assertTrue(result.success, result.error)
+
+            expected_targets = {
+                "syspilot.design.md": {"syspilot.mece"},
+                "syspilot.pm.md": {"syspilot.cm", "syspilot.release"},
+                "syspilot.qm.md": {
+                    "syspilot.mece",
+                    "syspilot.trace",
+                    "syspilot.pm",
+                },
+            }
+            for filename, expected in expected_targets.items():
+                metadata, _ = parse_frontmatter(
+                    (target / ".opencode/agents" / filename).read_bytes()
+                )
+                task_permissions = metadata["permission"]["task"]
+                with self.subTest(agent=filename):
+                    self.assertEqual(task_permissions["*"], "deny")
+                    self.assertEqual(
+                        {
+                            name
+                            for name, permission in task_permissions.items()
+                            if permission == "allow"
+                        },
+                        expected,
+                    )
 
     @unittest.skipUnless(shutil.which("opencode"), "OpenCode is not installed")
     def test_generated_opencode_configuration_parses(self):
@@ -2547,9 +2762,15 @@ class TestBootstrapContract(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         architecture = (ROOT / "docs/architecture.md").read_text(encoding="utf-8")
 
-        self.assertIn("Production harnesses: GitHub Copilot in VS Code and OpenCode", readme)
-        self.assertIn("Claude Code and Qoder adapters are experimental", readme)
-        self.assertNotIn("--harness claude", readme)
+        self.assertIn(
+            "Production harnesses: GitHub Copilot in VS Code, Claude Code, and OpenCode. Qoder is\n"
+            "available as an explicitly disclosed experimental, installable harness.",
+            readme,
+        )
+        self.assertNotIn("Claude Code and Qoder adapters are experimental", readme)
+        self.assertIn("--harness claude", readme)
+        self.assertIn("--harness qoder", readme)
+        self.assertNotIn("Claude CLI", readme)
         self.assertIn("`.syspilot/skills/`", readme)
         self.assertIn("`.syspilot/templates/`", readme)
         self.assertIn("writes only the explicitly selected harness target", architecture)
@@ -2566,19 +2787,7 @@ class TestBootstrapContract(unittest.TestCase):
 
         self.assertEqual(metadata["agents"], [])
         self.assertNotIn("agent", metadata["tools"])
-        self.assertIn(
-            "uv run --no-project .syspilot/installer.py checkpoint "
-            "--repository hubertusgbecker/syspilot --branch main "
-            "--target . --harness <vscode|opencode>",
-            text,
-        )
-        self.assertIn(
-            "uv run --no-project .syspilot/installer.py install "
-            "--repository hubertusgbecker/syspilot --branch <revision> "
-            "--target . --harness <vscode|opencode> "
-            "--checkpoint-id <checkpoint_id>",
-            text,
-        )
+        self.assertIn("--harness <vscode|claude|opencode|qoder>", text)
         for forbidden in (
             "runSubagent",
             "Task",
@@ -2605,6 +2814,17 @@ class TestBootstrapContract(unittest.TestCase):
         self.assertNotIn("invoked exclusively by the Setup Bootloader", text)
         self.assertNotIn("--orchestration", text)
         self.assertNotIn("Production harnesses are `vscode`, `opencode`, and `claude`", text)
+
+    def test_setup_forwards_the_complete_production_selector_and_uses_claude_code(self):
+        setup = (ROOT / "syspilot/agents/syspilot.setup.agent.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("<vscode|claude|opencode|qoder>", setup)
+        self.assertIn("Claude Code", setup)
+        self.assertNotIn("Claude CLI", setup)
+        self.assertNotIn("experimental", setup.lower())
+        self.assertNotIn("unsupported", setup.lower())
 
 
 class TestUvOnlyRuntimeContract(unittest.TestCase):
@@ -2700,12 +2920,14 @@ class TestUvOnlyRuntimeContract(unittest.TestCase):
         self.assertFalse(output.is_relative_to(target))
         self.assertFalse(doctrees.is_relative_to(target))
 
-    def test_public_cli_exposes_only_production_harnesses_and_no_legacy_controls(self):
+    def test_public_cli_exposes_exactly_four_production_harnesses_and_no_legacy_controls(self):
         result = InstallResult(True, "main", "fixture")
         with patch("syspilot.installer.install", return_value=result):
+            for harness in ("vscode", "claude", "opencode", "qoder"):
+                with self.subTest(harness=harness):
+                    self.assertEqual(main(["install", "--harness", harness]), 0)
             for arguments in (
-                ["install", "--harness", "claude"],
-                ["install", "--harness", "qoder"],
+                ["install", "--harness", "unsupported"],
                 ["bootstrap", "--harness", "vscode", "--checkpoint-id", "unused"],
                 [
                     "install",

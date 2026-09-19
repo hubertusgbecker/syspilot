@@ -138,8 +138,13 @@ Meta-level requirements defining the Soul/Duties/Workflow structure.
    * AC-11: Given a harness other than VS Code Copilot Chat, When an agent
      is installed there, Then only the frontmatter/structural adapter
      differs — the agent's Soul, Duties, and Workflow content is unchanged
-
-
+   * AC-12: Given Claude Code is selected, When agents are installed, Then
+         the harness exposes native, discoverable Manager and Engineer roles
+         and records independent production evidence for that harness. Given
+         Qoder is selected, When agents are installed, Then the harness
+         receives the staged, checksummed package archive as its
+         experimental-tier evidence; live native discoverability for Qoder
+         is deferred future scope and is not required for this change.
 .. req:: Agent Prompt File
    :id: SYSP_REQ_AGENT_ARCH_PROMPT
    :status: draft

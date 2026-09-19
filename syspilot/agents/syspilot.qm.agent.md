@@ -3,7 +3,7 @@ name: "Quality Manager"
 agent: syspilot.qm
 description: "Independent quality guardian that dispatches MECE and Trace engineers, consolidates findings, and produces Findings Reports addressed to PM."
 user-invocable: true
-agents: ["syspilot.mece", "syspilot.trace", "syspilot.pm"]
+agents: ["MECE Engineer", "Trace Engineer", "Project Manager"]
 ---
 
 # syspilot Quality Manager

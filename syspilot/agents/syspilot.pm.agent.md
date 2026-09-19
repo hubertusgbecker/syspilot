@@ -3,7 +3,7 @@ name: "Project Manager"
 agent: syspilot.pm
 description: "Strategic project manager that discusses features, prioritizes backlogs, conducts research, and delegates Change Requests to the Change Manager."
 user-invocable: true
-agents: ["syspilot.cm", "syspilot.release"]
+agents: ["Change Manager", "Release Engineer"]
 ---
 
 # syspilot Project Manager

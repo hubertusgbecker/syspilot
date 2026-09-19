@@ -19,12 +19,21 @@ Cover 100% of your specs with 6x less tokens. Links are deterministic — search
 Install [Git](https://git-scm.com/) and [uv](https://docs.astral.sh/uv/), then
 run the command for your harness from the root of the target Git repository.
 
-Production harnesses: GitHub Copilot in VS Code and OpenCode.
+Production harnesses: GitHub Copilot in VS Code, Claude Code, and OpenCode. Qoder is
+available as an explicitly disclosed experimental, installable harness.
 
 ### GitHub Copilot in VS Code
 
 ```bash
 uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness vscode
+```
+
+### Claude Code
+
+Install and authenticate Claude Code first, then run:
+
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness claude
 ```
 
 ### OpenCode
@@ -33,6 +42,21 @@ uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/
 uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness opencode
 ```
 
+### Qoder (experimental, installable)
+
+Install Qoder first, then run:
+
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness qoder
+```
+
+The Qoder command deterministically stages
+`.syspilot/qoder/syspilot-qoder-plugin.zip`. Import that archive through
+Qoder's documented UI. The import is external and is not performed or reported
+as completed by the Installer. Native in-app import and autonomous
+Manager-to-Engineer orchestration clearance for Qoder are deferred future
+work, not part of this experimental, installable-only tier.
+
 Run the same command again to update. Run one command for each harness used in
 the repository. The defaults are the current directory, repository
 `hubertusgbecker/syspilot`, and branch `main`. Synchronous orchestration is
@@ -40,19 +64,12 @@ installed deterministically.
 For a fork or branch, change the URL and add `--repository <owner>/<repo>
 --branch <branch>`.
 
-The command installs only the selected harness's native files, the stable
+The command writes only the explicitly selected harness target, the stable
 `.syspilot/installer.py` runtime, shared resources in `.syspilot/skills/` and
 `.syspilot/templates/`, and missing documentation bootstrap files.
 Installed Setup uses that runtime directly for later updates. Installation
 rejects target-path links and rolls back only syspilot-owned mutable paths, so
 unrelated project files and concurrent unrelated changes remain untouched.
-
-### Experimental / next target
-
-Claude Code and Qoder adapters are experimental. Their deterministic fixture
-generation remains available for development, but neither is a public CLI
-target until clean install, update, rollback, and live native invocation UAT
-are complete.
 
 GitHub Copilot CLI has been evaluated for artifact compatibility but is not
 production-certified. Production support for GitHub Copilot currently means
@@ -100,7 +117,12 @@ Includes methodology, naming conventions, and traceability matrices.
 
 - **Git**
 - **[uv](https://docs.astral.sh/uv/)**
-- **GitHub Copilot in VS Code** or **OpenCode**
+- **GitHub Copilot in VS Code**, **Claude Code**, or **OpenCode** (production),
+  or **Qoder** (experimental, installable)
+
+Claude Code must be installed and authenticated before selecting it. Qoder
+must be installed before its staged Plugin archive can be imported through the
+documented Qoder UI.
 
 `uv` resolves the exact Python and package dependencies declared by the remote
 PEP 723 script. No project `.venv`, preinstalled Python packages, or `pip`

@@ -86,6 +86,9 @@ Verify Engineer Design
 
    * **description:** ``"Verify implementation matches Change Document and traceability is complete."``
    * **user-invocable:** ``false``
-   * **agents:** ``["syspilot.trace"]``
+   * **agents:** ``["Trace Engineer"]`` — VS Code matches this entry exactly
+     against the target's frontmatter ``name:`` value
+   * **target agent identity:** ``syspilot.trace`` — stable internal/native
+     identity declared by the target's frontmatter ``agent:``
 
    **File:** ``syspilot.verify.agent.md``

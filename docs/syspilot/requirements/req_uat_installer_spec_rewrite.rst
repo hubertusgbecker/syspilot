@@ -15,7 +15,8 @@ Test data for ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE``.
    * ``SYSP_SPEC_INSTALLER_ADAPTER_ENGINE``,
      ``SYSP_SPEC_INSTALLER_WORKFLOW``, and
      ``SYSP_SPEC_INSTALLER_ROLLBACK``.
-   * Isolated upstream and target Git fixtures for ``vscode`` and ``opencode``.
+   * Isolated upstream and target Git fixtures for ``vscode``, ``claude``,
+     ``opencode``, and ``qoder``.
    * Source files with structured YAML, source-only Skill ``group``/``tools``/
      ``triggers`` fields, and bodies with and without terminal newlines.
    * Pre-existing HEAD, staged/unstaged changes, untracked files, harness
@@ -37,9 +38,9 @@ Test data for ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE``.
      declared mutable set.
    * Main and linked-worktree fixtures in attached, detached, and unborn states,
      with recorded ``--git-dir``, ``--git-path index``, and symbolic HEAD data.
-   * A runnable OpenCode fixture that records native Task routing, a VS Code
-     fixture that records ``runSubagent``, and installed shared templates used
-     by change-launcher.
+   * Isolated VS Code GitHub Copilot, Claude Code, OpenCode, and Qoder lifecycle
+     fixtures that record selected-target installation, update, failure, and
+     rollback state, plus installed shared templates used by change-launcher.
    * A network-conditional GitHub API fixture using a real public revision;
      absent network or rate-limit capacity produces an explicit skip.
    * Repository-input fixtures for ``owner/repository``, supported GitHub HTTPS,
@@ -67,11 +68,11 @@ Test data for ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE``.
 
    Initial installation SHALL use::
 
-      uv run --no-project "https://raw.githubusercontent.com/<owner>/<repository>/<branch>/syspilot/installer.py" install --repository <repository> --branch <branch> --target <target-root> --harness <vscode|opencode>
+      uv run --no-project "https://raw.githubusercontent.com/<owner>/<repository>/<branch>/syspilot/installer.py" install --repository <repository> --branch <branch> --target <target-root> --harness <vscode|claude|opencode|qoder>
 
    Setup update SHALL invoke::
 
-      uv run --no-project .syspilot/installer.py install --repository <repository> --branch <branch> --target <target-root> --harness <vscode|opencode>
+      uv run --no-project .syspilot/installer.py install --repository <repository> --branch <branch> --target <target-root> --harness <vscode|claude|opencode|qoder>
 
    **Captured Evidence:**
 
@@ -99,6 +100,12 @@ Test data for ``SYSP_US_UAT_INSTALLER_SPEC_REWRITE``.
      second-process replay logs plus before/after target, Git, and trusted-state
      inventories proving terminal capability revocation, zero mutation, and no
      authorizing checkpoint residue.
+
+   **Lifecycle Acceptance Ownership:**
+
+    This requirement is the exclusive normative UAT owner for clean installation, update, injected-failure, and rollback acceptance. For each of ``vscode``, ``claude``, ``opencode``, and ``qoder``, evidence SHALL independently prove a clean installation, an update from an earlier revision, an injected post-checkpoint failure, and exact rollback of target and Git state.
+
+    Live native discovery and loading acceptance is owned exclusively by ``SYSP_REQ_UAT_HARNESS_TARGET_MATRIX`` and SHALL NOT be inferred from this requirement's deterministic lifecycle evidence.
 
    **Preconditions:**
 

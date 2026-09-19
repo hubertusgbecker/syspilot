@@ -32,6 +32,10 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_SKILL_ADAPTER``.
    3. Native frontmatter omits unsupported ``group``, ``tools``, and
       ``triggers`` fields, while source ``group`` metadata still drives
       Installer mutual exclusion before adaptation.
-   4. Representative Skills load and can be manually invoked in OpenCode
-      without frontmatter errors; equivalent Claude Code and Qoder checks use
-      optional experimental fixtures and do not block production UAT.
+   4. Representative Skills can be manually invoked without frontmatter
+      errors when adapted for VS Code GitHub Copilot, OpenCode, and Claude
+      Code, each evaluated independently; live native-loading acceptance is
+      owned exclusively by ``SYSP_US_UAT_HARNESS_TARGET_MATRIX`` and SHALL
+      NOT be inferred from this criterion. Skills staged into the Qoder
+      package archive pass the same byte-identity and frontmatter checks;
+      their native in-app loading is deferred future scope for this change.

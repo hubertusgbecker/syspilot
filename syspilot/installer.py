@@ -16,6 +16,7 @@ import base64
 import ctypes
 import hashlib
 import hmac
+import io
 import json
 import os
 import re
@@ -27,6 +28,7 @@ import time
 import urllib.parse
 import urllib.request
 import uuid
+import zipfile
 from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -54,8 +56,13 @@ HARNESS_ROOTS = {
     "opencode": ".opencode",
     "qoder": ".qoder",
 }
-PRODUCTION_HARNESSES = ("vscode", "opencode")
+PRODUCTION_HARNESSES = ("vscode", "claude", "opencode", "qoder")
+# Valid --harness CLI selector values, not a maturity claim: vscode/claude/opencode
+# are production-parity; qoder is experimental, installable-only (staging only).
 ORCHESTRATION_SKILL = "syspilot.orchestration-subagent"
+QODER_ARCHIVE = ".syspilot/qoder/syspilot-qoder-plugin.zip"
+QODER_PACKAGE_ID = "syspilot-qoder"
+QODER_ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 DOC_INDEX = b"""Welcome to Project Documentation
 =================================
 
@@ -117,6 +124,8 @@ class InstallResult:
     summary: dict[str, DirectorySummary] = field(default_factory=dict)
     error: str | None = None
     commit: str | None = None
+    status: str | None = None
+    package_digest: str | None = None
 
 
 @dataclass(frozen=True)
@@ -809,13 +818,13 @@ def _render_frontmatter(metadata: dict[str, Any], body: bytes) -> bytes:
 def _claude_agent_name(source_path: str) -> str:
     relative = _validated_source_path(source_path)
     if relative.parts[:2] != ("syspilot", "agents"):
-        raise ValueError(f"Claude agent source path is invalid: {source_path}")
+        raise ValueError(f"Claude Code agent source path is invalid: {source_path}")
     filename = relative.name
     if not filename.startswith("syspilot.") or not filename.endswith(".agent.md"):
-        raise ValueError(f"Claude agent source filename is invalid: {source_path}")
+        raise ValueError(f"Claude Code agent source filename is invalid: {source_path}")
     source_id = filename.removesuffix(".agent.md")
     if re.fullmatch(r"syspilot\.[a-z]+", source_id) is None:
-        raise ValueError(f"Claude agent source ID is invalid: {source_id}")
+        raise ValueError(f"Claude Code agent source ID is invalid: {source_id}")
     return source_id.replace(".", "-")
 
 
@@ -841,7 +850,12 @@ def _adapt_claude_workflow_bindings(body: bytes, allowlist: list[str]) -> bytes:
     return body[:start] + b"".join(lines) + body[end:]
 
 
-def adapt_agent(content: bytes, harness: str, source_path: str | None = None) -> bytes:
+def adapt_agent(
+    content: bytes,
+    harness: str,
+    source_path: str | None = None,
+    agent_identities: Mapping[str, str] | None = None,
+) -> bytes:
     """Adapt agent metadata and harness-specific structural bindings."""
     metadata, body = parse_frontmatter(content)
     if harness == "vscode":
@@ -854,12 +868,19 @@ def adapt_agent(content: bytes, harness: str, source_path: str | None = None) ->
         isinstance(agent, str) for agent in allowlist
     ):
         raise ValueError("agent allowlist must be a list of names")
+    native_allowlist = [
+        agent_identities.get(agent, agent) if agent_identities else agent
+        for agent in allowlist
+    ]
     if harness == "opencode":
         adapted: dict[str, Any] = {"description": description}
-        if allowlist:
+        if native_allowlist:
             adapted["mode"] = "primary"
             adapted["permission"] = {
-                "task": {"*": "deny", **{agent: "allow" for agent in allowlist}}
+                "task": {
+                    "*": "deny",
+                    **{agent: "allow" for agent in native_allowlist},
+                }
             }
         elif metadata.get("user-invocable") is True:
             adapted["mode"] = "primary"
@@ -872,16 +893,17 @@ def adapt_agent(content: bytes, harness: str, source_path: str | None = None) ->
         adapted = {
             "name": _claude_agent_name(source_path),
             "description": description,
+            "user-invocable": False,
         }
-        if allowlist:
+        if native_allowlist:
             if metadata.get("user-invocable") is True:
                 native_targets = ", ".join(
-                    agent.replace(".", "-") for agent in allowlist
+                    agent.replace(".", "-") for agent in native_allowlist
                 )
                 adapted["tools"] = [f"Agent({native_targets})"]
             else:
                 adapted["tools"] = ["Agent"]
-            body = _adapt_claude_workflow_bindings(body, allowlist)
+            body = _adapt_claude_workflow_bindings(body, native_allowlist)
         return _render_frontmatter(adapted, body)
     if harness == "qoder":
         return _render_frontmatter({"description": description}, body)
@@ -1420,11 +1442,111 @@ def _selected_inventory(source: SourceSnapshot) -> dict[str, bytes]:
     return selected
 
 
+def _qoder_zip_info(member: str) -> zipfile.ZipInfo:
+    info = zipfile.ZipInfo(member, date_time=QODER_ZIP_TIMESTAMP)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.create_system = 3
+    info.external_attr = (stat.S_IFREG | 0o644) << 16
+    return info
+
+
+def _validate_qoder_archive(
+    archive: bytes,
+    payloads: Mapping[str, bytes],
+    manifest: Mapping[str, Any],
+) -> None:
+    with zipfile.ZipFile(io.BytesIO(archive)) as package:
+        members = package.namelist()
+        if members != sorted(members) or len(members) != len(set(members)):
+            raise ValueError("Qoder package member inventory is not normalized")
+        if set(members) != {"plugin.json", *payloads}:
+            raise ValueError("Qoder package member inventory is invalid")
+        for info in package.infolist():
+            path = PurePosixPath(info.filename)
+            if (
+                path.is_absolute()
+                or not path.parts
+                or any(part in {"", ".", ".."} for part in path.parts)
+                or info.date_time != QODER_ZIP_TIMESTAMP
+                or info.create_system != 3
+                or info.external_attr != (stat.S_IFREG | 0o644) << 16
+                or info.compress_type != zipfile.ZIP_DEFLATED
+                or info.extra
+                or info.comment
+            ):
+                raise ValueError(f"Qoder package member metadata is invalid: {info.filename}")
+        parsed_manifest = json.loads(package.read("plugin.json"))
+        if parsed_manifest != manifest:
+            raise ValueError("Qoder package manifest is invalid")
+        for member, content in payloads.items():
+            if package.read(member) != content:
+                raise ValueError(f"Qoder package member content is invalid: {member}")
+
+
+def _build_qoder_archive(
+    inventory: Mapping[str, bytes], source_revision: str
+) -> bytes:
+    payloads: dict[str, bytes] = {}
+    for source_path, content in inventory.items():
+        relative = _validated_source_path(source_path)
+        source_kind = relative.parts[1]
+        source_tail = PurePosixPath(*relative.parts[2:])
+        if source_kind == "agents":
+            member = (PurePosixPath("agents") / source_tail).as_posix()
+            payloads[member] = adapt_agent(content, "qoder", source_path)
+        elif source_kind == "skills" and source_tail.name == "SKILL.md":
+            member = (PurePosixPath("skills") / source_tail).as_posix()
+            payloads[member] = adapt_skill(content, "qoder")
+
+    member_digests = {
+        member: hashlib.sha256(content).hexdigest()
+        for member, content in sorted(payloads.items())
+    }
+    manifest = {
+        "id": QODER_PACKAGE_ID,
+        "source_revision": source_revision,
+        "members": member_digests,
+    }
+    manifest_bytes = (
+        json.dumps(manifest, indent=2, sort_keys=True).encode("utf-8") + b"\n"
+    )
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as package:
+        for member, content in sorted(
+            {"plugin.json": manifest_bytes, **payloads}.items()
+        ):
+            package.writestr(
+                _qoder_zip_info(member),
+                content,
+                compress_type=zipfile.ZIP_DEFLATED,
+                compresslevel=9,
+            )
+    archive = buffer.getvalue()
+    _validate_qoder_archive(archive, payloads, manifest)
+    return archive
+
+
 def _build_targets(
-    inventory: Mapping[str, bytes], target_root: Path, harness: str
+    inventory: Mapping[str, bytes],
+    target_root: Path,
+    harness: str,
+    source_revision: str,
 ) -> dict[str, bytes]:
     if harness not in HARNESS_ROOTS:
         raise ValueError(f"unsupported initiating harness: {harness}")
+    if harness == "qoder":
+        return {QODER_ARCHIVE: _build_qoder_archive(inventory, source_revision)}
+    agent_identities: dict[str, str] = {}
+    for source_path, content in inventory.items():
+        relative = _validated_source_path(source_path)
+        if relative.parts[1] != "agents":
+            continue
+        metadata, _ = parse_frontmatter(content)
+        name = metadata.get("name")
+        identity = metadata.get("agent")
+        if isinstance(name, str) and isinstance(identity, str):
+            agent_identities[name] = identity
+
     targets: dict[str, bytes] = {}
     for source_path, content in inventory.items():
         relative = _validated_source_path(source_path)
@@ -1444,7 +1566,7 @@ def _build_targets(
             filename = source_tail.name.removesuffix(".agent.md") + ".md"
             destination = harness_root / "agents" / source_tail.parent / filename
             targets[_validated_relative(destination.as_posix())] = adapt_agent(
-                content, harness, source_path
+                content, harness, source_path, agent_identities
             )
         elif source_kind == "skills":
             destination = harness_root / "skills" / source_tail
@@ -1532,7 +1654,7 @@ def build_install_plan(
     if not target_root.is_dir():
         raise ValueError("target root is not a directory")
     inventory = _selected_inventory(source)
-    targets = _build_targets(inventory, target_root, harness)
+    targets = _build_targets(inventory, target_root, harness, source.revision)
     try:
         runtime_content = source.files[INSTALLER_RUNTIME_SOURCE]
     except KeyError as error:
@@ -2149,12 +2271,17 @@ def _install_snapshot_attempt(
         if failure_phase == "post_commit_checkpoint_deletion":
             raise RuntimeError("injected failure before checkpoint deletion")
         _retire_checkpoint(checkpoint.identifier)
+        package = plan.writes.get(QODER_ARCHIVE)
         return InstallResult(
             True,
             source.branch,
             source.revision,
             summary=summary,
             commit=commit_hash,
+            status="staged" if initiating_harness == "qoder" else "installed",
+            package_digest=(
+                hashlib.sha256(package).hexdigest() if package is not None else None
+            ),
         )
     except BaseException as error:
         rollback_error: Exception | None = None

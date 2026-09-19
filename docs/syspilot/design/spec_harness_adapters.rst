@@ -3,11 +3,11 @@ Harness Adapter Design
 
 Structural/frontmatter adapters that let the single-source agent and skill
 content (Soul/Duties/Workflow content per SYSP_SPEC_AGENT_ARCH_SOUL,
-Skill Instructions/Rules) run unmodified on OpenCode in addition to VS Code
-GitHub Copilot. Claude Code and Qoder mappings are retained as experimental
-targets pending live native invocation UAT. Findings below are based on each
-harness's own current documentation, fetched 2026-09-16 — not on assumptions
-carried over from prior knowledge or from ``superpowers``.
+Skill Instructions/Rules) run on the production-parity matrix (VS Code GitHub
+Copilot, Claude Code, and OpenCode) plus Qoder as an explicitly disclosed
+experimental, installable harness. Findings below are based on each
+harness's current native conventions and are independent of environment-
+specific launcher names.
 
 .. important::
 
@@ -69,15 +69,51 @@ carried over from prior knowledge or from ``superpowers``.
         - File copy only; no marketplace/package-manager mechanism was found
           for agents/skills/commands in OpenCode's own docs
       * - Qoder
-        - ``.qoder/agents/<name>.md`` (project) or ``~/.qoder/agents/<name>.md``
-          (user)
-        - ``.qoder/skills/<name>/SKILL.md`` (project) or
-          ``~/.qoder/skills/<name>/SKILL.md`` (user)
+        - Plugin/package agent content; installed Plugins supply specialized
+          Agents
+        - Plugin/package Skill content; Skills and Plugins are installed or
+          imported as extensions
         - No separate prompt/command file format documented; Skills are
           invoked as ``/<skill-name>``, same pattern as Claude Code
-        - File copy only; a ``skills add`` third-party marketplace CLI
-          (``npx skills add ... -a qoder``) exists for *community* skills,
-          not for first-party project distribution
+        - The Installer builds the project-scoped import package defined by
+          the Qoder Staging Contract below. Qoder documents Plugin/package
+          import through its UI, but no programmable import/install command or
+          API is documented. Native import acceptance is therefore an external
+          prerequisite, not an Installer operation or autonomous lifecycle
+          result. The package is not a directly live-loaded project directory;
+          no user-global configuration is hand-edited.
+
+   **Qoder Staging Contract:** A ``qoder`` installation owns exactly the
+   final project artifact ``.syspilot/qoder/syspilot-qoder-plugin.zip``. It is
+   a deterministic ZIP archive whose root contains Qoder's documented Plugin
+   manifest ``plugin.json``, ``agents/``, and ``skills/``. ``plugin.json`` is
+   generated from one version-controlled Installer manifest schema and records
+   the package identifier ``syspilot-qoder``, the selected immutable source
+   revision, and an inventory of every archive member with its SHA-256 digest.
+   The archive contains every adapted Qoder agent at
+   ``agents/<source-agent-filename>`` and every adapted Skill at
+   ``skills/<source-skill-directory>/SKILL.md``; it contains no prompt or
+   command artifact. Member paths are normalized relative paths, ordered
+   lexically, timestamp-normalized, and ZIP metadata-normalized so identical
+   inputs produce byte-identical archive bytes. The package digest is the
+   SHA-256 of those final archive bytes and is reported in the structured
+   Installer result.
+
+   The frozen transaction plan includes the archive and its parent directory
+   existence/type/content identity exactly as it includes other mutable paths.
+   Update replaces only that final archive atomically; rollback restores its
+   exact pre-state or removes it when it was absent. The Installer neither
+   executes nor simulates a Qoder import, changes user/global Qoder state, nor
+   claims that a Qoder native surface is available after staging. The user may
+   select Qoder's documented UI import flow and choose this archive only after
+   the Installer has reported a valid staged package. That UI acceptance is an
+   external product capability prerequisite and makes a Qoder run ``staged``,
+   not ``native-imported`` or production-parity cleared. This deterministic,
+   checksummed staging is Qoder's complete and sufficient installability
+   evidence for its experimental, installable tier in this change. Native
+   in-app import and autonomous Manager-to-Engineer orchestration parity for
+   Qoder are explicitly deferred to a future change; they are disclosed
+   future scope, not silently dropped blockers.
 
 .. spec:: Harness Agent Frontmatter Adapter
   :id: SYSP_SPEC_HARNESS_AGENT_ADAPTER
@@ -114,10 +150,14 @@ carried over from prior knowledge or from ``superpowers``.
         - Markdown body (system prompt) — unchanged
         - Markdown body (system prompt) — unchanged
       * - ``user-invocable``
-        - No equivalent field. Every subagent file can always be
-          ``@``-mentioned by the user; there is no frontmatter flag to hide
-          one from direct invocation. **Limitation** — see
-          SYSP_SPEC_HARNESS_LIMITATIONS.
+        - Emit ``user-invocable: false`` on every generated agent as a VS Code
+          compatibility extension. VS Code also discovers
+          ``.claude/agents/*.md`` and defaults an omitted field to ``true``;
+          the explicit ``false`` prevents duplicate Claude-format identities
+          from appearing in its direct agent picker. Claude Code does not
+          define this field, so it is not a Claude-native visibility control:
+          all generated agents remain discoverable and invocable through
+          their native Claude ``name`` and retain Agent-tool orchestration.
         - No first-class hide flag; ``mode: subagent`` plus ``hidden: true``
           removes an agent from the ``@`` autocomplete menu only — the model
           can still invoke it via the Task tool regardless.
@@ -168,8 +208,9 @@ carried over from prior knowledge or from ``superpowers``.
   writes identical Markdown body bytes (Soul/Duties/Workflow, including the
   Tailoring preflight sentence and exact EOF-newline state) except for the
   structural binding adaptation defined below. Fields with no native
-  equivalent are dropped, never approximated with a same-named field having
-  different semantics.
+  equivalent are dropped, except that ``user-invocable: false`` is emitted as
+  the explicit VS Code compatibility extension defined above; it is never
+  represented as Claude-native hiding.
 
   **Structural binding adaptation:** for Claude output only, replace dotted
   agent IDs with their mapped native names solely where Workflow prose binds
@@ -182,11 +223,22 @@ carried over from prior knowledge or from ``superpowers``.
   This target-native wiring is structural adaptation, not methodology-content
   drift.
 
-  **Claude user invocation:** installed user-facing agents are invoked as
-  ``claude --agent syspilot-setup``, ``claude --agent syspilot-pm``,
-  ``claude --agent syspilot-qm``, and ``claude --agent syspilot-cm``.
-  Dotted source IDs and source/display filenames are not Claude invocation
-  identities.
+  **Claude Code user invocation:** installed user-facing agents use their
+  generated ``syspilot-<role>`` native identities. Dotted source IDs and
+  source/display filenames are not Claude Code invocation identities. Claude
+  Code remains able to discover and invoke every generated agent, including
+  Engineer roles, because ``user-invocable`` has no claimed Claude-native
+  effect. When VS Code opens the same project, ``.github/agents`` remains the
+  sole direct-picker surface: only source agents declaring
+  ``user-invocable: true`` are visible, and every generated identity under
+  ``.claude/agents`` is hidden from direct selection.
+
+    **Qoder package boundary:** Qoder-adapted agent files and Skill directories
+    are archive members of ``.syspilot/qoder/syspilot-qoder-plugin.zip`` under
+    the Qoder Staging Contract. They are not asserted to be live-loaded merely
+    by staging. Only user acceptance of Qoder's documented UI import can make
+    their supplied specialized Agents and Skills available; live availability
+    remains owned by SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.
 
    **OpenCode exact mapping:** a source Manager emits ``mode: primary`` and an
    Engineer emits ``mode: subagent``. For a nonempty parsed source ``agents``
@@ -303,8 +355,11 @@ carried over from prior knowledge or from ``superpowers``.
      documented placeholder with the complete native command request, so the
      selected agent receives the caller's full argument text without copied
      prompt or agent prose.
-   * **Qoder** — no separate command-file concept documented; same as
-     Claude Code, the Custom Agent file itself is the entry point.
+   * **Qoder** — no separate command-file concept is documented. The imported
+     Plugin/package supplies the Custom Agent entry point; users may select it
+     through ``/`` and Qoder may select a matching installed Agent from the
+     task description. The Installer does not create a direct project command
+     or prompt path.
 
    **Consequence:** the Prompt File architecture element
    (SYSP_SPEC_AGENT_ARCH_PROMPT) is VS Code- and OpenCode-specific; Claude
@@ -359,11 +414,12 @@ carried over from prior knowledge or from ``superpowers``.
         - Manager agents set ``mode: primary`` and grant task permission to
           named Engineer subagents
       * - Qoder
-        - Documented only as "the subagent approach"; no further detail
-          confirmed
-        - Treat as flat (Manager invokes one Engineer at a time, no
-          documented nesting) until independently verified — see
-          SYSP_SPEC_HARNESS_LIMITATIONS
+        - Documented Custom Agent invocation by exact installed identity
+          (``/<agent-name>``)
+        - This is a user invocation surface, not a documented Manager-callable
+          delegation primitive. It starts the selected agent's chat turn and
+          exposes that agent's normal response to the user; it does not return
+          an Engineer result to a Manager for autonomous consumption
 
    **Production binding contracts:**
 
@@ -383,6 +439,32 @@ carried over from prior knowledge or from ``superpowers``.
      to the caller. Main-thread Manager restrictions use explicit
      ``Agent(<native-name>, ...)`` entries; nested subagents follow Claude's
      documented Agent-tool behavior.
+   * **Qoder:** The documented Plugin/package supplies specialized Agents and
+     Skills after installation or import as extensions. Users may select an
+     installed Agent through ``/`` and Qoder may choose a matching installed
+     Agent from task description; the main Agent coordinates the overall
+     result. These documented selection and coordination statements do not
+     establish a programmable Manager-callable SEND tool/API, blocking
+     behavior, or structured Engineer-result return contract. The generated
+     Qoder package therefore SHALL NOT claim an autonomous
+     Manager-to-Engineer mapping. Qoder Manager-to-Engineer orchestration
+     parity is out of scope for this change and is deferred to a future
+     change, not a blocked production candidate: this change's accepted
+     Qoder acceptance bar is deterministic package-staging installability,
+     not orchestration clearance. A user relaying requests or responses
+     between turns remains unacceptable as future orchestration evidence.
+     Engineer-to-Engineer nesting is neither required nor claimed.
+
+  For every harness claiming production orchestration clearance, successful
+  Manager invocation or one successful SEND is insufficient. A representative
+  fixture SHALL declare an ordered Engineer list and unique fixed result token
+  per Engineer. Its captured native transcript must show each required SEND
+  and returned token in order, and the terminal Manager RESPOND must contain
+  every token in that same order without a user prompt or approval between
+  stages. This orchestration clearance gate applies to VS Code GitHub
+  Copilot, OpenCode, and Claude Code. Qoder is not evaluated against it for
+  this change; its orchestration evidence is explicitly deferred future
+  scope, disclosed rather than silently dropped.
 
    The adapter never derives binding choice from installed directories or
    rewrites the shared semantic definitions. VS Code and OpenCode generated
@@ -406,25 +488,27 @@ carried over from prior knowledge or from ``superpowers``.
      another subagent, documented bare ``Agent`` semantics permit unrestricted
      spawn; Workflow target bindings remain authoritative guidance but are not
      misrepresented as harness-enforced per-type restrictions.
+   * **Claude Code / VS Code — cross-discovery compatibility boundary.** VS
+     Code discovers both ``.github/agents/*.agent.md`` and Claude-format
+     ``.claude/agents/*.md`` and treats a missing ``user-invocable`` as
+     ``true``. Every generated Claude agent therefore carries
+     ``user-invocable: false`` so VS Code exposes no duplicate Claude-format
+     identity in its direct picker. Claude Code's supported-field list does
+     not define this field; all generated agents remain native Claude agents
+     and the field is not claimed to hide or disable them in Claude Code.
    * **OpenCode — Skill frontmatter is a strict six-field allowlist.**
      Source-only ``group``, ``tools``, and ``triggers`` fields are omitted
      from adapted native frontmatter. The Installer reads source ``group``
      metadata before adaptation to enforce mutual exclusion, so omission does
      not remove installation semantics.
-   * **Qoder — subagent-to-subagent nesting is undocumented.** Qoder's own
-     docs describe Custom Agent scheduling only as "the subagent approach"
-     without detailing whether a Custom Agent can itself invoke another
-     Custom Agent, or to what depth. Until independently verified, the
-     Manager→Engineer SEND pattern is treated as a single flat hop on
-     Qoder.
-   * **Qoder — experimental support only.** The mappings in this document are
-     retained for continued development, but Qoder is not advertised as
-     production-supported until clean install, repeat update, native
-     invocation, and rollback UAT are complete.
-   * **Claude Code — experimental support only.** Static discovery and parsing
-     must pass for all 13 native names, but Claude Code is not
-     production-supported until authenticated live invocation and delegation,
-     plus clean-install, repeat-update, and rollback UAT, are complete.
+   * **Qoder — autonomous delegation is deferred future scope.** The
+     documented ``/<agent-name>`` Custom Agent surface is a user invocation,
+     not evidence of a Manager-callable delegation or result-return channel.
+     This change accepts Qoder at the experimental, installable tier on
+     deterministic package-staging evidence alone; the autonomous
+     Manager-workflow gate is explicitly out of scope here and deferred to a
+     future change, not a blocker resolved by this revision. Engineer-to-
+     Engineer nesting remains neither required nor claimed.
    * **Qoder — Rules require Settings-UI registration.** Qoder's Rules
      mechanism (project convention injection, distinct from Agents/Skills)
      documents rule *type* selection (Always Apply / Model Decision /

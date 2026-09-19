@@ -28,7 +28,8 @@ Design specifications defining the structure and content of each documentation f
    1. Logo and tagline
    2. Value proposition / elevator pitch
    3. Concise Getting Started with prerequisites and separate commands for
-      VS Code GitHub Copilot (``vscode``) and OpenCode
+      VS Code GitHub Copilot (``vscode``), Claude Code (``claude``), OpenCode
+      (``opencode``), and Qoder (``qoder``)
    4. Agent overview table
    5. How it works (specification link chain)
    6. Link to full docs
@@ -41,8 +42,16 @@ Design specifications defining the structure and content of each documentation f
    repeat it unchanged for updates, and run it once for each harness used.
    It contains no pip or bare-Python setup and no Setup pre-placement. Optional
    repository/branch arguments are shown without obscuring the default command.
-   Claude CLI installation/authentication is external. Claude Code and Qoder
-   are labeled experimental and are not presented as production-supported.
+   Claude Code installation and authentication are external prerequisites for
+   the ``claude`` target. Qoder availability is an external prerequisite for
+   the ``qoder`` target. VS Code GitHub Copilot, Claude Code, and OpenCode are
+   presented as production-supported; Qoder is presented as an explicitly
+   disclosed experimental, installable harness whose accepted installability
+   evidence is deterministic package staging, with native import and
+   Manager-to-Engineer orchestration parity disclosed as deferred future
+   scope. All four use project-scoped native artifacts and require no
+   hand-edited personal or global harness configuration. Product-facing text
+   uses only ``Claude Code`` and never an environment-specific launcher name.
 
 
 .. spec:: Methodology Structure

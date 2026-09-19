@@ -27,9 +27,19 @@ Manual acceptance scenarios for ``SYSP_SPEC_HARNESS_ORCHESTRATION_ADAPTER``.
 
    1. Every target installs the synchronous orchestration-group variant and no
       asynchronous variant, regardless of ``.jarvis/`` presence.
-   2. OpenCode Managers complete a synchronous Manager-to-Engineer SEND and
-      receive the Engineer result as production acceptance.
-   3. Claude Code Manager allowlists and Workflow bindings resolve mapped
-      native names. Claude remains experimental until authenticated live
-      invocation and Manager-to-Engineer delegation pass; Qoder remains
-      experimental until its live native invocation UAT is executed.
+   2. Managers in VS Code GitHub Copilot, OpenCode, and Claude Code each
+      complete a synchronous Manager-to-Engineer SEND and receive the
+      Engineer result as production acceptance. Qoder orchestration
+      acceptance is out of scope for this change and is deferred to a future
+      change.
+   3. Claude Code passes authenticated live native invocation and
+      Manager-to-Engineer delegation as an independent quality gate. Qoder's
+      equivalent live invocation/delegation evidence is explicitly deferred
+      future scope, not a gate cleared or waived here.
+   4. Claude Code independently completes a representative end-to-end
+      Manager workflow in autonomous product operation, including every
+      required Engineer delegation and returned result, without pausing for
+      user approval between workflow stages; Manager invocation or a single
+      successful delegation alone does not satisfy this criterion. Qoder is
+      not evaluated against this criterion for this change; the deferral is
+      disclosed, not silently dropped.

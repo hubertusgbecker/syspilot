@@ -54,19 +54,20 @@ Test data requirements for
         - Existing syspilot installation under ``.github/``
         - AC-1 (no regression)
       * - ``F-CLAUDE-EMPTY``
-        - Experimental deterministic Claude adapter fixture
+        - Required production deterministic Claude Code adapter fixture
         - AC-2
       * - ``F-OPENCODE-EMPTY``
         - Clean Git repository; selected with ``--harness opencode``
         - AC-3
       * - ``F-QODER-EMPTY``
-        - Experimental adapter fixture; not production acceptance
+        - Clean Git repository; selected with ``--harness qoder``; required
+          experimental-tier package-staging acceptance fixture
         - AC-4
       * - ``F-CLEAN``
         - Clean target project selected with ``--harness vscode``
         - AC-5
       * - ``F-CLAUDE-RETIRE``
-        - Experimental adapter fixture including ``.claude/agents/`` output; one
+        - Required production adapter fixture including ``.claude/agents/`` output; one
           previously-installed product agent removed from the simulated
           upstream source for this run
         - AC-6
@@ -89,7 +90,7 @@ Test data requirements for
    * A byte-level or line-level diff tool to confirm Skill body identity and
      agent-body identity outside authorized structural binding locations
      between a ``.github/`` file and its harness-adapted counterpart (AC-2)
-   * A YAML parser and reference resolver for all 13 Claude native names,
+   * A YAML parser and reference resolver for all 13 Claude Code native names,
      Agent allowlists, and Workflow/orchestration binding targets (AC-2)
    * ``uv`` and Git, plus a process-command recorder that identifies direct
      invocations of ``python``, ``python3``, ``pip``, ``pip3``, and
@@ -106,3 +107,16 @@ Test data requirements for
    * AC-7: No virtual environment is activated and no fixture-local or global
      Python dependency installation is required; uv-managed state remains
      outside the target repository.
+
+   **Acceptance Criteria:**
+
+   This requirement owns explicit target selection and target-isolation
+   evidence only. Clean installation, update, injected-failure, rollback, and
+   lifecycle no-regression acceptance are owned exclusively by
+   ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE`` and SHALL NOT be inferred from this
+   requirement's evidence.
+
+   * **AC9**: Acceptance MUST independently verify that ``claude`` is a
+     selectable production target and ``qoder`` is a selectable
+     experimental, installable target, and that each target's generated
+     output remains isolated from every non-selected harness tree.

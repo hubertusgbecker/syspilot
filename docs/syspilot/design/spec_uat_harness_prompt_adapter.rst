@@ -61,8 +61,7 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_PROMPT_ADAPTER``.
 
    **TC-HPA-CLAUDE — Claude Code uses no separate prompt file**
 
-    *Precondition:* Optional experimental fixture ``F-PROMPT-CLAUDE`` is
-    available and reset. Otherwise record this scenario as not executed.
+    *Precondition:* Required production fixture ``F-PROMPT-CLAUDE`` is reset.
 
    *Action:* Install syspilot, list all generated paths, and invoke the
    Manager through its native agent or Skill entry point.
@@ -72,26 +71,49 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_PROMPT_ADAPTER``.
    * [ ] No syspilot prompt/command directory or separate prompt artifact is
      generated under ``.claude/``.
    * [ ] The Manager remains invocable through its installed native surface.
+   * [ ] The representative request reaches the selected Manager and produces
+     the expected workflow outcome; lifecycle evidence is referenced from
+     SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE rather than repeated here.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_PROMPT_ADAPTER`` AC-3
 
    ---
 
-   **TC-HPA-QODER — Qoder uses no separate prompt file**
+   **TC-HPA-QODER — Qoder uses no separate prompt file (experimental tier, native invocation deferred)**
 
-    *Precondition:* Optional experimental fixture ``F-PROMPT-QODER`` is
-    available and reset. Otherwise record this scenario as not executed.
+    *Precondition:* The Qoder experimental-tier package-staging fixture is
+    reset. This scenario's live-invocation portion requires the deferred,
+    out-of-scope external UI import and is not required for this change's
+    Qoder clearance.
 
-    Absence of either experimental fixture does not block the VS Code/OpenCode
-    production result.
-
-   *Action:* Install syspilot, list all generated paths, and invoke the
-   Manager through Qoder's Custom Agent surface.
+  *Action:* Install syspilot and inspect the deterministic Qoder package. If
+  and only if external UI import evidence exists under
+  SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX (deferred future scope for this
+  change), directly invoke the Manager through the imported Custom Agent
+  surface with the representative request.
 
    *Expected result:*
 
-   * [ ] No syspilot prompt/command directory or separate prompt artifact is
-     generated under ``.qoder/``.
-   * [ ] The installed Custom Agent remains directly invocable.
+   * [ ] No separate Qoder prompt/command artifact is generated; staging is
+     exactly the documented import package and direct project paths are not
+     treated as native artifacts. This is Qoder's complete, sufficient
+     evidence for this change's experimental, installable tier.
+   * [ ] If a future change supplies external UI import evidence, the
+     imported Plugin/package-supplied Custom Agent would be expected to
+     remain directly invocable and to reach the selected Manager for a basic
+     direct-invocation response — routing evidence only, not
+     production-parity or autonomous workflow clearance.
+   * [ ] Production-parity-equivalent Qoder orchestration evidence (native
+     transcript, fixture-defined ordered Engineer tokens, returned-result
+     consumption, terminal ordered result, no manual relay) is out of scope
+     for this change and is deferred to a future change; its absence does
+     not block this change's Qoder acceptance, which rests solely on
+     deterministic package staging.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_PROMPT_ADAPTER`` AC-4
+
+   **Ownership note:** This design owns prompt/command adaptation and request
+   routing behavior. Clean installation, update, injected failure, and rollback
+   are exclusively deferred to SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE. Live native
+   discovery/loading is exclusively deferred to
+   SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.

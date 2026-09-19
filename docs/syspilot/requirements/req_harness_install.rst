@@ -27,11 +27,11 @@ configuration.
      the remote installer URL is executed through ``uv run --no-project``
      with an explicit ``--harness``, Then installation completes without a
      pre-existing Setup file or a hand-edited personal/global configuration
-   * AC-2: Given ``--harness vscode`` or ``--harness opencode``, When
-     installation completes, Then Setup, all Managers and Engineers, Skills,
-     applicable Commands, and ``.syspilot/installer.py`` are placed in valid
-     project locations for exactly the selected harness and shared runtime;
-     the other harness target is not written
+   * AC-2: Given any explicit production harness token, When installation
+     completes, Then Setup, the complete Manager set, Engineer set, Skill set,
+     native invocation surfaces, and ``.syspilot/installer.py`` are placed in
+     valid project locations for exactly the selected harness and shared
+     runtime; no other harness target is written
    * AC-3: Given any Python-related Setup, Installer, shipped-tool, test, or
      Sphinx-validation operation in this feature, When the operation is
      executed or documented, Then ``uv`` is its sole runtime, environment,
@@ -46,15 +46,24 @@ configuration.
    * AC-5: Given a repository uses multiple supported harnesses, When syspilot
      is installed, Then the command is run separately for each harness and no
      harness is selected by filesystem presence detection
-   * AC-6: The production-supported matrix is VS Code GitHub Copilot and
-     OpenCode; Claude Code and Qoder are labeled experimental until each
-     completes clean install, repeat update, live native invocation, and
-     rollback UAT
+   * AC-6: The production-supported matrix is VS Code GitHub Copilot, Claude Code,
+     and OpenCode. Qoder is an experimental, installable harness: its
+     required installability evidence is deterministic, checksummed package
+     staging; native import and per-harness production clearance for Qoder
+     are deferred to a future change.
    * AC-7: Path containment is owned exclusively by
      SYSP_REQ_INSTALLER_DIRECT_OPS; checkpoint scope, restoration, and
      concurrent-change preservation are owned exclusively by
      SYSP_REQ_INSTALLER_ROLLBACK
 
+   * AC-8: Given Claude Code is selected, When native installation
+     completes, Then the complete Managers, Engineers, Skills, and native
+     invocation surfaces are loadable through that harness's live native
+     integration, with isolated per-harness evidence.
+   * AC-9: Given Qoder is selected, When installation completes, Then the
+     deterministic, checksummed package archive is staged and independently
+     verifiable; native in-app loading of its contents is out of scope for
+     this change and is deferred to a future change, not silently omitted.
 
 .. req:: Harness-Native Update Flow
    :id: SYSP_REQ_HARNESS_NATIVE_UPDATE
@@ -85,7 +94,13 @@ configuration.
      install or update flow runs, Then branch propagation and immutable source
      fidelity conform to the normative owner
      SYSP_REQ_INSTALLER_GITHUB_SOURCE
-
+   * AC-5: Given Claude Code is explicitly selected, When native update and
+     rollback run, Then assets remain isolated to the selected native tree
+     and the harness has independent update and rollback evidence. Given
+     Qoder is explicitly selected, When native update and rollback run,
+     Then the checksummed package archive is atomically replaced or rolled
+     back, isolated to its declared staging path; this is Qoder's complete
+     required evidence for this change.
 
 .. req:: Harness Installation Prerequisites
    :id: SYSP_REQ_HARNESS_ONE_TIME_ENABLEMENT
@@ -104,12 +119,16 @@ configuration.
    * AC-1: Given a clean target Git repository, When initial installation
      begins, Then no Setup or Installer agent file is pre-placed
    * AC-2: Given Claude Code is selected, When installation or native UAT
-     requires its CLI, Then Claude CLI installation and authentication are
+     requires its CLI, Then Claude Code CLI installation and authentication are
      documented as external prerequisites and are not performed by syspilot
    * AC-3: Given installation succeeds, When the selected harness reloads its
      project configuration, Then installed Setup is discoverable as the
      primary user-facing update entry point
-
+   * AC-4: Given Claude Code and Qoder external prerequisites, When readiness
+     is evaluated, Then Claude Code CLI readiness is evidenced as production
+     acceptance and Qoder's external documented UI-import prerequisite is
+     disclosed as deferred future scope for this change, without hand-edited
+     configuration.
 
 .. req:: Harness Install No Regression
    :id: SYSP_REQ_HARNESS_INSTALL_NO_REGRESSION
@@ -130,3 +149,10 @@ configuration.
      CR is implemented and the deterministic update is run, Then its
      installation and update flow and its native files continue without
      regression
+   * AC-2: Given the supported harness matrix, When installation and update
+     are exercised, Then VS Code GitHub Copilot and OpenCode compatibility is
+     separately observable, Claude Code lifecycle acceptance is
+     independently evidenced at production parity, and Qoder lifecycle
+     acceptance is independently evidenced at the experimental,
+     installable tier (deterministic package staging and rollback).
+     Methodology behavior is owned by portability no-regression.

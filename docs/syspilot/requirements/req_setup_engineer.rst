@@ -327,8 +327,11 @@ Setup Manager Requirements
 
    * ``vscode`` → ``.github/{agents,prompts,skills,templates}/``
    * ``opencode`` → ``.opencode/{agents,commands,skills}/``
-   * experimental ``claude`` → ``.claude/{agents,skills}/``
-   * experimental ``qoder`` adapter fixtures → ``.qoder/{agents,skills}/``
+   * production ``claude`` → ``.claude/{agents,skills}/``
+   * experimental, installable ``qoder`` → the checksummed package archive
+     ``.syspilot/qoder/syspilot-qoder-plugin.zip`` (Qoder Staging Contract,
+     SYSP_SPEC_HARNESS_TARGET_MATRIX); no project-native ``.qoder/`` tree is
+     written by this change
 
    **Shared scope (every invocation):**
 
@@ -378,6 +381,12 @@ Setup Manager Requirements
      in the explicitly selected harness tree
 
 
+   * AC-13: Given the public harness selection surface, When a user selects
+         Claude Code, Then that value is an explicit production target and
+         installation remains isolated to its native tree. When a user
+         selects Qoder, Then that value is an explicit experimental,
+         installable target and installation is isolated to its declared
+         package-staging path, not a native project tree.
 .. req:: Installer Doc Bootstrap
    :id: SYSP_REQ_INSTALLER_DOC_BOOTSTRAP
    :status: approved
@@ -435,7 +444,7 @@ Setup Manager Requirements
      propagation and source-fidelity rules in SYSP_REQ_INSTALLER_GITHUB_SOURCE
    * AC-8: Setup execution conforms to the uv-only policy owned by
      SYSP_REQ_HARNESS_NATIVE_INSTALL
-
+   * AC-9: Given Claude Code or Qoder is explicitly selected, When installed Setup updates or rolls back, Then the selected harness lifecycle works without hand-edited personal or global configuration, with independent Claude Code and Qoder evidence.
 
 .. req:: Setup Manager Frontmatter Configuration
    :id: SYSP_REQ_SETUP_FRONTMATTER

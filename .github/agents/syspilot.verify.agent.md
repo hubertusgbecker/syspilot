@@ -3,7 +3,7 @@ name: "Verify Engineer"
 agent: syspilot.verify
 description: "Verify implementation matches Change Document and traceability is complete."
 user-invocable: false
-agents: ["syspilot.trace"]
+agents: ["Trace Engineer"]
 ---
 
 # syspilot Verify Engineer

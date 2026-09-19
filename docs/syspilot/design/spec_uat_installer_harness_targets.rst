@@ -43,12 +43,11 @@ invocation scenarios remain runtime UAT.
 
    ---
 
-   **TC-IHT-CLAUDE — Experimental Claude Code adapted output**
+  **TC-IHT-CLAUDE — Claude Code production target selection**
 
    *Precondition:* Fixture ``F-CLAUDE-EMPTY``.
 
-      *Action:* Run the deterministic Claude adapter fixture; do not classify
-      this scenario as production harness acceptance.
+      *Action:* Run a fresh install with ``--harness claude``.
 
    *Expected result:*
 
@@ -58,8 +57,9 @@ invocation scenarios remain runtime UAT.
      the corresponding ``.github/`` file's body
    * [ ] Every adapted agent contains required ``name`` and ``description``;
      all 13 ``name`` values are valid, unique ``syspilot-<role>`` identities
-   * [ ] Adapted agent frontmatter contains no ``user-invocable``, source
-     ``agents``, Jarvis ``agent``, or ``version`` key
+   * [ ] Adapted agent frontmatter declares ``user-invocable: false`` on every
+     generated agent and contains no source ``agents``, Jarvis ``agent``, or
+     ``version`` key
    * [ ] Every Claude Agent allowlist and Workflow/orchestration binding
      reference resolves to one of those 13 identities
 
@@ -87,7 +87,7 @@ invocation scenarios remain runtime UAT.
      while Setup has no Installer task permission
    * [ ] Every source prompt produces a command whose filename preserves dots,
      whose frontmatter contains description (including fallback) and agent,
-     and whose body is empty
+     and whose body is exactly ``$ARGUMENTS`` plus one terminal newline
    * [ ] Required templates and non-native Skill resources exist under shared
      ``.syspilot/{templates,skills}``; no ``.github`` path is created
 
@@ -95,19 +95,24 @@ invocation scenarios remain runtime UAT.
 
    ---
 
-      **TC-IHT-QODER — Experimental Qoder adapter output**
+      **TC-IHT-QODER — Qoder package staging (experimental, installable tier)**
 
    *Precondition:* Fixture ``F-QODER-EMPTY``.
 
-      *Action:* Run the deterministic Qoder adapter fixture; do not classify this
-      scenario as production harness acceptance.
+      *Action:* Run a fresh install with ``--harness qoder`` and inspect the
+      Installer-owned deterministic Qoder Plugin/package staging artifact.
 
    *Expected result:*
 
-   * [ ] ``.qoder/agents/<name>.md`` exists for every product agent
-   * [ ] ``.qoder/skills/<name>/SKILL.md`` exists for every product Skill
-   * [ ] No file exists anywhere under ``.qoder/`` that serves a
-     command/prompt role distinct from the agent/Skill file itself
+   * [ ] Exactly one final archive exists at
+     ``.syspilot/qoder/syspilot-qoder-plugin.zip``; its ZIP structure,
+     ``plugin.json`` manifest, normalized member inventory, source revision,
+     member digests, and package digest are valid and match the frozen plan.
+   * [ ] The structured result is ``staged``. The archive is the sole source
+     for documented Qoder UI import; it is not a directly live-loaded
+     ``.qoder/`` project tree, an imported native result, or a parity pass.
+   * [ ] No separate Qoder command/prompt artifact is generated and no
+     user-global configuration is hand-edited.
 
    *Traces to:* ``SYSP_US_UAT_INSTALLER_HARNESS_TARGETS`` AC-4
 
@@ -123,10 +128,15 @@ invocation scenarios remain runtime UAT.
 
    * [ ] ``.claude/`` does not exist after the run
    * [ ] ``.opencode/`` does not exist after the run
-   * [ ] ``.qoder/`` does not exist after the run
+   * [ ] No Qoder Plugin/package staging artifact exists after a non-Qoder run
    * [ ] Only ``.github/``, declared shared ``.syspilot`` runtime/resources,
      and missing-only documentation bootstrap files exist as installer-created
      output
+
+   * [ ] Public selection accepts exactly ``vscode``, ``claude``, ``opencode``,
+     and ``qoder``; any other value fails before mutation.
+   * [ ] Selection never depends on installed applications, existing harness
+     directories, personal/global configuration, or launcher names.
 
    *Traces to:* ``SYSP_US_UAT_INSTALLER_HARNESS_TARGETS`` AC-5
 
@@ -153,7 +163,7 @@ invocation scenarios remain runtime UAT.
 
    ---
 
-   **Executable fixture suite — adapter and transaction contract**
+  **Executable fixture suite — adapter and selection contract**
 
    *Precondition:* Create an isolated Git repository and a fake upstream
    revision containing product roots plus a conflicting ``.github`` tree.
@@ -161,10 +171,9 @@ invocation scenarios remain runtime UAT.
    newline states, all harness presence signals, protected files, and orphans.
 
     *Action:* Execute the PEP 723 test entry point as ``uv run --no-project
-    tests/test_installer.py`` and invoke the engine CLI as ``uv run --no-project
-    syspilot/installer.py install``. Repeat with injected failures during
-    read-only source acquisition and at every mutation and validation phase.
-    Record all child-process commands and target mutations.
+    tests/test_installer.py`` and invoke the engine CLI once for each public
+    harness value plus one invalid value. Record selected destinations and
+    target mutations.
 
    *Expected result:*
 
@@ -175,20 +184,14 @@ invocation scenarios remain runtime UAT.
      exact filenames, UTF-8 without BOM, and byte-identical methodology bodies
      including terminal-newline state
    * [ ] Orphan eligibility and per-directory summaries match fixture state
-   * [ ] Dependency and read-only source-acquisition failures cause no target
-     mutation and leave no checkpoint residue
-   * [ ] The scoped declared-path checkpoint exists before every target mutation; every
-     post-checkpoint injected failure, including after commit creation but
-     before checkpoint deletion, restores exact HEAD/index/worktree pre-state
-     and emits no retained commit or success result
-   * [ ] The success case observes Sphinx validation before the final commit
-     and summary
-   * [ ] The validation child command begins ``uv run --no-project
-     .syspilot/installer.py validate-sphinx``; no command directly invokes
-     ``python``, ``python3``, ``pip``, ``pip3``, or ``sphinx-build``
-   * [ ] The clean success fixture has no activated virtual environment,
-     globally installed Python dependencies, target-repository ``.venv``, or
-     target-repository dependency cache
+   * [ ] Every valid value writes only its selected native tree or, for Qoder,
+     the final archive ``.syspilot/qoder/syspilot-qoder-plugin.zip``, plus
+     declared shared paths; the invalid value causes zero mutation.
+   * [ ] Claude Code and Qoder target-selection results are reported
+     independently.
 
-   **Automation rule:** searching Installer prose for contract fragments is not
-   acceptance evidence for these behaviors; tests execute the shipped module.
+   **Ownership note:** This design owns explicit target selection, deterministic
+   adaptation, and selected-tree isolation. SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE
+   exclusively owns clean installation, update, injected-failure, and rollback
+   acceptance. SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX exclusively owns live native
+   discovery and loading.

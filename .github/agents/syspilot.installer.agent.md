@@ -1,4 +1,5 @@
 ---
+name: "Installer"
 description: "Internal installation engine for syspilot. Invoked by Bootloader only — not user-invocable."
 user-invocable: false
 agents: []

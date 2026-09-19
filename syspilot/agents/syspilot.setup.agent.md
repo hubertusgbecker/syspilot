@@ -31,13 +31,13 @@ harness inputs and report its result.
 
 ## Workflow
 
-1. **Resolve Inputs** — Use explicit repository, branch, target-root, and harness values from the user request. Default repository to `hubertusgbecker/syspilot`, branch to `main`, and target-root to the current working directory. The harness must be one of `vscode` or `opencode`.
+1. **Resolve Inputs** — Use explicit repository, branch, target-root, and harness values from the user request. Default repository to `hubertusgbecker/syspilot`, branch to `main`, and target-root to the current working directory. The harness must be one of `vscode`, `claude`, `opencode`, or `qoder`; `claude` selects Claude Code.
 
 2. **Check Executables** — From the target Git repository root, execute `uv --version` and `git --version`. Never probe bare `python`, `python3`, `pip`, `pip3`, or `sphinx-build`. If either command fails, stop without mutation and report which prerequisite is unavailable.
 
 3. **Create Checkpoint** — From the target Git repository root, execute:
 
-   `uv run --no-project .syspilot/installer.py checkpoint --repository hubertusgbecker/syspilot --branch main --target . --harness <vscode|opencode>`
+   `uv run --no-project .syspilot/installer.py checkpoint --repository hubertusgbecker/syspilot --branch main --target . --harness <vscode|claude|opencode|qoder>`
 
    Replace each default only when the user supplied an explicit value. Execute
    this command directly as a child process and retain only its structured
@@ -47,12 +47,12 @@ harness inputs and report its result.
 4. **Invoke Runtime Directly** — Execute a second child process using the
    returned immutable revision and opaque identifier:
 
-   `uv run --no-project .syspilot/installer.py install --repository hubertusgbecker/syspilot --branch <revision> --target . --harness <vscode|opencode> --checkpoint-id <checkpoint_id>`
+   `uv run --no-project .syspilot/installer.py install --repository hubertusgbecker/syspilot --branch <revision> --target . --harness <vscode|claude|opencode|qoder> --checkpoint-id <checkpoint_id>`
 
    The runtime atomically consumes the checkpoint before mutation and owns
    native writes, validation, commit, rollback, and terminal cleanup.
 
-5. **Report Result** — Relay the runtime's structured summary or failure. Do not report success unless the process exits successfully.
+5. **Report Result** — Relay the runtime's structured summary or failure. For Qoder, relay the runtime's `staged` result without claiming that external UI import completed. Do not report success unless the process exits successfully.
 
 **Input:** User request to update syspilot
 **Output:** Deterministic runtime result and structured summary

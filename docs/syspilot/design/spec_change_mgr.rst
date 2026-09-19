@@ -156,6 +156,9 @@ Change Manager Design
 
    * **description:** ``"Central orchestrator of the change workflow. Receives Change Requests, dispatches engineers in sequence, enforces quality gates, and reports completion with full traceability."``
    * **user-invocable:** ``true``
-   * **agents:** ``["syspilot.design", "syspilot.uat", "syspilot.implement", "syspilot.mece", "syspilot.trace", "syspilot.docu", "syspilot.pm", "syspilot.qm"]``
+   * **agents:** ``["System Designer", "Test Designer", "Dev Engineer", "MECE Engineer", "Trace Engineer", "Documentation Engineer", "Project Manager", "Quality Manager"]`` — VS Code matches
+     these entries exactly against each target's frontmatter ``name:`` value
+   * **target agent identities:** ``syspilot.design``, ``syspilot.uat``, ``syspilot.implement``, ``syspilot.mece``, ``syspilot.trace``, ``syspilot.docu``, ``syspilot.pm``, ``syspilot.qm`` — stable
+     internal/native identities declared by each target's frontmatter ``agent:``
 
    **File:** ``syspilot.cm.agent.md``

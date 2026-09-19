@@ -54,9 +54,15 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_AGENT_ADAPTER``.
      per-target allowlist.
    * [ ] Every Workflow and orchestration binding target resolves to exactly
      one of the 13 generated names.
-   * [ ] ``user-invocable``, source ``agents``, Jarvis ``agent``, and
+   * [ ] Every generated agent declares ``user-invocable: false`` as a VS
+     Code compatibility extension; source ``agents``, Jarvis ``agent``, and
      ``version`` are absent.
    * [ ] No replacement field with different semantics was introduced.
+   * [ ] The compatibility field is not reported as Claude-native hiding; all
+     13 generated native names and their Agent-tool bindings are preserved.
+     Live Claude Code discovery/invocation and VS Code direct-picker evidence
+     are referenced from ``SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX`` rather than
+     duplicated here.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_AGENT_ADAPTER`` AC-2
 
@@ -92,13 +98,14 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_AGENT_ADAPTER``.
 
    ---
 
-   **TC-HAA-QODER — Qoder unsupported fields are omitted**
+  **TC-HAA-QODER — Qoder package field mapping (experimental, installable tier)**
 
-    *Precondition:* Optional experimental Qoder Manager and Engineer agents are
-    available. Otherwise record this scenario as not executed.
+  *Precondition:* The deterministic Qoder Plugin/package staging artifact
+  contains all generated Qoder Manager and Engineer agents as the required
+  experimental-tier fixture.
 
-   *Action:* Parse their YAML and compare all keys with the documented Qoder
-   mapping.
+  *Action:* Parse staged agent YAML and compare all keys with the documented
+  Qoder mapping.
 
    *Expected result:*
 
@@ -106,41 +113,36 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_AGENT_ADAPTER``.
    * [ ] ``user-invocable``, ``agents``, ``name``, ``agent``, and ``version``
      are absent.
    * [ ] No undocumented SEND-tool or allowlist key was invented.
+   * [ ] The artifact is identified as package source/staging, not as a
+     directly live-loaded ``.qoder/`` project path. This static field-mapping
+     check is the complete required Qoder evidence for this change; native
+     in-app loading is deferred future scope.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_AGENT_ADAPTER`` AC-4
 
    ---
 
-   **TC-HAA-RUNTIME — Representative agents load with original guidance**
+  **TC-HAA-RUNTIME — Representative agents retain original guidance**
 
-    *Precondition:* Install the generated Manager and Engineer in a clean
-    OpenCode project. Include Claude Code and Qoder projects only when their
-    optional experimental fixtures are available.
+   *Precondition:* SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX has independently
+   confirmed native loading for each production harness. Retain the loaded
+   Manager and Engineer plus their generated and source files.
 
-  *Action:* Invoke each agent by its native mechanism and ask it to state
-  its role, duties, first workflow step, and terminal workflow step from its
-  loaded instructions. In the Claude fixture, run
-  ``claude plugin validate .claude/agents`` only when that CLI version accepts
-  an agents directory as a validation target, then run
-  ``claude --agent syspilot-qm``. Also record that user-facing Setup, PM, QM,
-  and CM identities are respectively ``syspilot-setup``, ``syspilot-pm``,
-  ``syspilot-qm``, and ``syspilot-cm``.
+  *Action:* Invoke each already-loaded agent by its native mechanism and ask it
+  to state its role, duties, first workflow step, and terminal workflow step
+  from its instructions. Record the generated Claude Code identities for
+  user-facing Setup, PM, QM, and CM. Qoder is excluded from this live-runtime
+  check for this change; its evidence is limited to TC-HAA-QODER's static
+  field mapping.
 
    *Expected result:*
 
-   * [ ] OpenCode loads both agents without a frontmatter error and each
-     response reflects the source role, duties, RECEIVE-first step, and
-     RESPOND-terminal step.
-   * [ ] Claude validation, when supported for this target shape, reports no
-     malformed or undiscoverable agent file.
-   * [ ] ``claude --agent syspilot-qm`` does not report agent-not-found and
-     reaches authentication or model execution. An authentication failure is
-     recorded as an external blocked result, not a discovery failure and not
-     an authenticated pass.
-   * [ ] Claude remains experimental until authenticated native invocation and
-     Manager-to-Engineer delegation both pass and are recorded.
-   * [ ] Available Qoder fixtures are recorded separately; unavailable Qoder
-     evidence remains not executed and does not block production acceptance.
+   * [ ] Each production-parity harness response reflects the source role,
+     duties, RECEIVE-first step, and RESPOND-terminal step.
+   * [ ] Claude Code's result is recorded independently of Qoder's deferred,
+     out-of-scope experimental-tier result; neither result masks the other.
+   * [ ] Discovery and loading evidence is referenced from
+     SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX rather than duplicated here.
 
    **OpenCode native configuration check:** in an isolated OpenCode fixture,
    run ``opencode debug config`` from the project root and parse the resolved
@@ -156,7 +158,9 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_AGENT_ADAPTER``.
 
    **Testability Note:**
 
-   Static comparison proves content identity and field mapping. It cannot
-   prove model behavior is identical; TC-HAA-RUNTIME checks instruction
-   availability, while stochastic response equivalence remains unsuitable
-   for a deterministic pass/fail assertion.
+  Static comparison proves content identity and field mapping. It cannot prove
+  model behavior is identical; TC-HAA-RUNTIME checks role-execution semantics
+  only after the target matrix has supplied discovery/loading evidence.
+  Lifecycle acceptance is exclusively deferred to
+  SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE, and live discovery/loading is
+  exclusively deferred to SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.

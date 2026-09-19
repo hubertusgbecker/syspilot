@@ -43,6 +43,10 @@ Setup Manager Design
    * **Branch Fidelity** — Pass one repository and branch value to the complete
      Installer source run; an absent branch override means ``main`` throughout
 
+    **Harness Fidelity:** Pass exactly one explicit ``vscode``, ``claude``,
+    ``opencode``, or ``qoder`` value unchanged; never infer a harness from
+    installed applications, project directories, or launcher names.
+
 
 .. spec:: Setup Bootloader Workflow
    :id: SYSP_SPEC_SETUP_WORKFLOW
@@ -54,7 +58,9 @@ Setup Manager Design
 
    1. **Resolve Inputs** — Use explicit repository, branch, target-root, and
       harness values from the user request; default branch to ``main``. The
-      production harness is ``vscode`` or ``opencode``.
+      production harness is exactly one of ``vscode``, ``claude``,
+      ``opencode``, or ``qoder``. Reject every other value and never infer it
+      from installed applications, project directories, or launcher names.
    2. **Check Executables** — Execute ``uv --version`` and ``git --version``.
       Never probe bare ``python``, ``python3``, ``pip``, ``pip3``, or
       ``sphinx-build``. A failed probe stops without mutation.
@@ -66,6 +72,10 @@ Setup Manager Design
       ``runSubagent``, SEND, or any harness-native subagent mechanism for
       installation. The runtime owns source refresh, checkpoint creation,
       native writes, validation, commit, rollback, and checkpoint cleanup.
+      Setup forwards ``qoder`` unchanged and relays its structured ``staged``
+      result only. It SHALL NOT direct, simulate, or report Qoder UI import as
+      a completed native installation; that external prerequisite and native
+      loading evidence are owned by SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.
    4. **Report Result** — Relay the runtime's structured summary or failure.
       Setup does not report success unless the runtime exits successfully.
 

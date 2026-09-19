@@ -2,8 +2,10 @@ Harness Portability Requirements
 =================================
 
 Requirements ensuring syspilot's agent/skill/command behavior is equivalent
-across the production matrix (VS Code GitHub Copilot and OpenCode). Claude
-Code and Qoder remain experimental targets.
+across the production-parity matrix: VS Code GitHub Copilot, Claude Code, and
+OpenCode. Qoder is an explicitly disclosed experimental, installable harness;
+its acceptance bar is deterministic package staging, not full behavioral
+equivalence.
 
 
 .. req:: Harness Behavioral Equivalence
@@ -44,6 +46,12 @@ Code and Qoder remain experimental targets.
      harness binding, Then VS Code uses ``runSubagent`` and OpenCode uses its
      native Task mechanism while preserving the same observable contract
 
+   * AC-6: Given Claude Code, When the native harness is exercised, Then it
+     independently demonstrates native roles/agents, Skills, commands/prompts,
+     and equivalent Manager behavior. Given Qoder, When the native harness is
+     exercised, Then only its deterministic package-staging artifact is
+     evaluated; native role/Skill behavioral equivalence for Qoder is
+     deferred future scope and is not required for this criterion.
 
 .. req:: Harness Content Single-Source
    :id: SYSP_REQ_HARNESS_CONTENT_SINGLE_SOURCE
@@ -106,7 +114,7 @@ Code and Qoder remain experimental targets.
    * AC-2: Given a documented limitation on one harness, When other
      harnesses are evaluated, Then the limitation does not block support
      on those other harnesses
-
+   * AC-3: Given a harness limitation is disclosed, Then the disclosure never waives a mandatory production capability or independent harness acceptance.
 
 .. req:: Harness Portability No Regression
    :id: SYSP_REQ_HARNESS_PORTABILITY_NO_REGRESSION
@@ -126,3 +134,4 @@ Code and Qoder remain experimental targets.
    * AC-1: Given a change for harness portability, When existing VS Code
      Copilot Chat users invoke agents, Skills, or commands, Then they see no
      regression in methodology behavior
+   * AC-2: Given the supported methodology harnesses, When workflows run, Then VS Code GitHub Copilot and OpenCode methodology behavior is separately observable and Manager-workflow no-regression evidence is provided.

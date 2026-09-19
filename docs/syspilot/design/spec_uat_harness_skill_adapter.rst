@@ -5,11 +5,11 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
 
 
 .. spec:: UAT Expected Outcomes: Harness Skill Frontmatter Adapter
-   :id: SYSP_SPEC_UAT_HARNESS_SKILL_ADAPTER
-   :status: approved
-   :priority: mandatory
-   :tags: uat, harness, skill, frontmatter, expected-outcomes
-   :links: SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER
+  :id: SYSP_SPEC_UAT_HARNESS_SKILL_ADAPTER
+  :status: approved
+  :priority: mandatory
+  :tags: uat, harness, skill, frontmatter, expected-outcomes
+  :links: SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER
 
    **TC-HSA-BODY — Skill body remains single-source**
 
@@ -30,21 +30,25 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
 
    **TC-HSA-DISCOVERY — Description and directory invocation name**
 
-    *Precondition:* Install both Skills in a clean OpenCode fixture using the
-    original directory names. Include clean Claude Code and Qoder fixtures only
-    when those optional experimental fixtures are available.
+    *Precondition:* Generate both Skills for VS Code GitHub Copilot,
+    OpenCode, and Claude Code using the original directory names, plus the
+    Qoder experimental-tier fixture with Skills contained in the
+    deterministic Plugin/package staging artifact. Native loading is
+    established by SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX before this content
+    check, for the production-parity tier.
 
-   *Action:* Inspect generated YAML, open each harness's Skill picker, and
-   manually invoke each Skill by its directory name.
+  *Action:* Inspect generated YAML and verify the expected directory invocation
+  name against the target-matrix discovery/loading record.
 
    *Expected result:*
 
    * [ ] Every copy retains the source ``description`` unchanged.
-   * [ ] OpenCode lists or resolves the Skill using its source directory name.
-   * [ ] Manual OpenCode invocation loads the selected Skill's instructions.
-   * [ ] Available optional Claude Code and Qoder fixtures satisfy the same
-     checks; unavailable fixtures remain not executed and do not block
-     production acceptance.
+   * [ ] OpenCode's expected invocation name is its source directory name.
+   * [ ] Claude Code satisfies the static content and invocation-name checks.
+   * [ ] Qoder satisfies its static checks from package staging alone, which
+     is its complete required evidence at the experimental, installable
+     tier; its imported Plugin/package loading and invocation evidence is
+     deferred future scope, not required for this change.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_SKILL_ADAPTER`` AC-2
 
@@ -53,7 +57,8 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
     **TC-HSA-METADATA — Unsupported native metadata is omitted**
 
     *Precondition:* The selected metadata-rich Skill is generated for OpenCode
-    and for each available optional Claude Code or Qoder fixture.
+    and for the required Claude Code production fixture and the Qoder
+    experimental-tier fixture.
 
     *Action:* Parse each generated YAML block, record the source ``group``
     before adaptation, and install a second Skill from the same group.
@@ -66,8 +71,10 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
      replaces the previously installed member of that group.
    * [ ] Exactly one Skill from the group remains installed even though the
      adapted ``SKILL.md`` does not retain the ``group`` key.
-   * [ ] OpenCode and each available optional experimental fixture load the
-     Skill without unsupported-field errors.
+   * [ ] Every production-parity fixture contains parser-valid adapted Skill
+     frontmatter; native loading evidence remains exclusively in the target
+     matrix result. The Qoder fixture's staged frontmatter is parser-valid;
+     native loading evidence for Qoder is deferred future scope.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_SKILL_ADAPTER`` AC-3
 
@@ -75,42 +82,20 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
 
    **TC-HSA-RUNTIME — Representative Skill instructions are available**
 
-    *Precondition:* Both Skills are installed and manually invocable in
-    OpenCode; optional Claude Code and Qoder fixtures are included only when
-    available.
+    *Precondition:* The target matrix has recorded live native discovery/loading
+     for both Skills in every production-parity harness. Qoder is excluded
+     from this live-runtime check for this change.
 
-   *Action:* Invoke each Skill and ask the active agent to identify the first
-   instruction and one rule from the loaded Skill text.
+  *Action:* Use the target-matrix loading record and compare the first
+  instruction and one rule from the corresponding generated Skill body.
 
    *Expected result:*
 
-   * [ ] Both OpenCode/Skill combinations load without frontmatter errors;
-     available experimental combinations are recorded separately.
+   * [ ] Both Skill combinations retain the source instruction and rule in
+     their generated bodies for the production-parity tier, with Claude
+     Code's result recorded independently of Qoder's deferred experimental-
+     tier static-only evidence.
    * [ ] The identified instruction and rule match the source text.
-
-   *Traces to:* ``SYSP_US_UAT_HARNESS_SKILL_ADAPTER`` AC-4
-
-   ---
-
-   **TC-HSA-RESOURCES — Harness-neutral scripts and templates**
-
-   *Precondition:* Install change-launcher and impact from the same revision
-   into separate clean VS Code and OpenCode fixtures.
-
-   *Action:* Inspect native and shared paths, then invoke each Skill's
-   deterministic resource command from the target root.
-
-   *Expected result:*
-
-   * [ ] Each fixture contains native ``SKILL.md`` files only under its selected
-     harness and no unselected harness tree.
-   * [ ] Both fixtures contain
-     ``.syspilot/templates/change-document.md`` and the required scripts below
-     ``.syspilot/skills/<name>/`` with selected-revision bytes.
-   * [ ] Change-launcher resolves the shared template and script; impact runs
-     ``uv run --no-project
-     .syspilot/skills/syspilot.impact-python/scripts/get_need_links.py``.
-   * [ ] The OpenCode execution reads no ``.github`` path.
 
    *Traces to:* ``SYSP_US_UAT_HARNESS_SKILL_ADAPTER`` AC-4
 
@@ -118,7 +103,8 @@ Expected outcomes for ``SYSP_REQ_UAT_HARNESS_SKILL_ADAPTER``.
 
    **Testability Note:**
 
-   Description-based automatic invocation is model-selected and cannot be
-   made deterministic from a fixed prompt. This chain verifies description
-   preservation and manual invocation; automatic selection should be
-   observed exploratorily and must not be reported as a guaranteed pass.
+  Description-based automatic invocation is model-selected and cannot be
+  made deterministic from a fixed prompt. This design verifies description,
+  invocation-name, and body preservation only. Live native discovery/loading
+  is exclusively deferred to SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX; lifecycle
+  acceptance is exclusively deferred to SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE.

@@ -25,16 +25,29 @@ Harness Deterministic Installation Entry
       * - OpenCode
         - ``--harness opencode``
       * - Claude Code
-        - Experimental adapter/UAT only; not a production CLI value
+        - ``--harness claude``
+      * - Qoder
+        - ``--harness qoder``
 
    The common command shape is::
 
       uv run --no-project "https://raw.githubusercontent.com/<owner>/<repository>/<branch>/syspilot/installer.py" install --harness <harness> [--repository <repository>] [--branch <branch>]
 
-   The command creates only the complete selected native target, including
-   Setup, plus ``.syspilot/installer.py`` and missing-only documentation
-   bootstrap files. A repository using multiple production harnesses runs the
-   command separately for each harness.
+    The command creates only the complete selected native target, including
+    Setup, plus ``.syspilot/installer.py`` and missing-only documentation
+    bootstrap files. For Qoder, the selected target is exactly the
+    Installer-owned ``.syspilot/qoder/syspilot-qoder-plugin.zip`` staging
+    artifact defined by SYSP_SPEC_HARNESS_TARGET_MATRIX. The command validates
+    and transactionally manages that project artifact; it does not import it.
+    Qoder's documented UI import is an external prerequisite with no documented
+    programmable command/API, so this command reports ``staged`` as Qoder's
+    complete, accepted installability evidence at the experimental tier —
+    not a completed native installation or production parity. Native import
+    and Manager-to-Engineer orchestration parity for Qoder are explicitly
+    deferred to a future change and are not blockers for this change. It
+    requires no hand-edited personal or global harness configuration. A
+    repository using multiple supported harnesses runs the command
+    separately for each harness.
 
    **Update flow:** Re-run the identical remote command for the selected
    harness, or invoke installed Setup. Setup directly runs ``uv run
@@ -44,3 +57,8 @@ Harness Deterministic Installation Entry
    **Source fidelity:** The explicit repository and branch govern the remote
    script and every product fetch. The runtime refreshes its stable local copy
    from the same resolved revision.
+
+   Lifecycle acceptance for clean installation, update, injected failure, and
+   rollback is owned exclusively by SYSP_SPEC_UAT_INSTALLER_SPEC_REWRITE.
+   Native discovery and loading are owned exclusively by
+   SYSP_SPEC_UAT_HARNESS_TARGET_MATRIX.

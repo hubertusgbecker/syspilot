@@ -13,12 +13,14 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_PROMPT_ADAPTER``.
 
    * A source Manager prompt with a known ``description`` and
      ``agent: syspilot.<name>`` route.
-   * Generated VS Code and OpenCode installations from the same source
-     revision; generated Claude Code and Qoder fixtures are optional
-     experimental evidence.
-   * Installed copies of VS Code and OpenCode and a project file-listing tool;
-     installed Claude Code and Qoder copies are optional until each completes
-     its independent production acceptance gate.
+   * Generated VS Code GitHub Copilot, Claude Code, and OpenCode
+     installations from the same source revision as required production
+     evidence, plus a generated Qoder package-staging archive as required
+     experimental-tier evidence.
+   * Installed copies of the three production-parity harnesses and a project
+     file-listing tool; Claude Code is required for independent live native
+     acceptance. Qoder's live native acceptance is deferred future scope for
+     this change.
    * One representative multi-token user request containing spaces and
      punctuation, plus a deterministic Manager receiver that records the exact
      request and observable outcome; use it unchanged for the paired VS Code
@@ -40,11 +42,13 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_PROMPT_ADAPTER``.
         - Empty ``.opencode/`` project harness directory
         - ``/<command-name>``
       * - ``F-PROMPT-CLAUDE``
-        - Optional experimental empty ``.claude/`` project harness directory
+        - required production empty ``.claude/`` project harness directory
         - ``@agent-name`` or installed Skill command
       * - ``F-PROMPT-QODER``
-        - Optional experimental empty ``.qoder/`` project harness directory
-        - Custom Agent invocation
+        - Required experimental-tier package-staging archive (no project
+          ``.qoder/`` directory is written by this change)
+        - Custom Agent invocation, deferred: requires the user's documented
+          external UI import before it applies
 
    Each fixture SHALL be reset before its scenario, and the tester SHALL
     record the complete generated path list after installation. For
@@ -52,3 +56,17 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_PROMPT_ADAPTER``.
     same request text, record the selected Manager, and compare the observable
     workflow outcome and exact received request rather than treating matching
     routing metadata or fabricated metadata tuples as behavioral evidence.
+
+    This requirement owns native prompt and command behavior only. Clean
+    installation, update, injected-failure, and rollback acceptance are owned
+    exclusively by ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE`` and SHALL NOT be
+    inferred from this requirement's evidence.
+
+   **Acceptance Criteria:**
+
+   * **AC1**: Acceptance MUST independently demonstrate the required live
+     native commands and prompts for production Claude Code; static or
+     simulated invocation evidence is insufficient. Qoder acceptance is
+     limited to the deterministic, checksummed package-staging archive;
+     live native command/prompt evidence for Qoder is deferred future scope
+     and is not required for this change.

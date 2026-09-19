@@ -96,32 +96,33 @@ Installer Design
    target per invocation. The source content is adapted per
    SYSP_SPEC_HARNESS_AGENT_ADAPTER and SYSP_SPEC_HARNESS_SKILL_ADAPTER:
 
-   .. list-table::
-      :header-rows: 1
-      :widths: 25 35 40
+    .. csv-table::
+         :header: "Harness", "Source", "Destination"
+         :widths: 25, 35, 40
 
-      * - Harness
-        - Source
-        - Destination
-      * - ``vscode``
-        - ``agents/``, ``prompts/``, ``skills/``
-        - ``.github/{agents,prompts,skills}/``
-      * - ``opencode``
-        - ``agents/``, ``prompts/``, ``skills/``
-        - ``.opencode/{agents,commands,skills}/``
-      * - experimental ``claude``
-        - ``agents/``, ``skills/``
-        - ``.claude/{agents,skills}/``
-      * - experimental ``qoder`` fixture
-        - ``agents/``, ``skills/``
-        - ``.qoder/{agents,skills}/``
+         "``vscode``", "``agents/``, ``prompts/``, ``skills/``", "``.github/{agents,prompts,skills}/``"
+         "``opencode``", "``agents/``, ``prompts/``, ``skills/``", "``.opencode/{agents,commands,skills}/``"
+         "``claude``", "``agents/``, ``skills/``", "``.claude/{agents,skills}/``"
+         "``qoder``", "``agents/``, ``skills/``", "``.syspilot/qoder/syspilot-qoder-plugin.zip``"
 
    Every invocation also manages shared ``.syspilot/installer.py``, product
    templates under ``.syspilot/templates/``, non-``SKILL.md`` Skill resources
    under ``.syspilot/skills/<name>/``, and missing-only ``docs/index.rst`` /
    ``docs/conf.py`` files. Native ``SKILL.md`` files remain only in the
    selected harness tree; another harness's methodology directories are never
-   written.
+   written. ``vscode``, ``opencode``, and ``claude`` are the production-parity
+   targets. ``qoder`` is the experimental, installable target: it writes only
+   the final archive defined by the Qoder Staging Contract in
+   SYSP_SPEC_HARNESS_TARGET_MATRIX. It is an Installer-owned final
+   project artifact, not a direct live-load path or an executable helper. The
+   Installer verifies archive format, manifest inventory, and digest, and
+   this deterministic staging is Qoder's complete, accepted installability
+   evidence for this change. The Installer has no documented non-interactive
+   Qoder import/install operation. It therefore never performs or claims
+   native import, never hand-edits user-global configuration, and reports
+   Qoder staging separately from external Qoder UI acceptance; native import
+   and Manager-to-Engineer orchestration parity for Qoder are explicitly
+   deferred to a future change, not silently dropped.
 
    **Explicitly excluded (NEVER copied to user projects):**
 
@@ -228,6 +229,29 @@ Installer Design
    owned by SYSP_SPEC_INSTALLER_GITHUB_SOURCE; the engine invokes that source
    contract without adding filesystem fallback semantics.
 
+   **Required implementation delta:** The current baseline supports only
+   ``vscode`` and ``opencode``. Implementation SHALL extend the public
+   ``--harness`` selector and every public install/checkpoint validation path
+   in ``syspilot/installer.py`` to accept exactly ``vscode``, ``claude``,
+   ``opencode``, and ``qoder``. It SHALL map ``claude`` to the established
+   ``.claude/{agents,skills}`` output and ``qoder`` to only
+   ``.syspilot/qoder/syspilot-qoder-plugin.zip``; it SHALL not map Qoder to a
+   live ``.qoder/`` tree. The implementation SHALL add deterministic package
+   construction, manifest/inventory/digest validation, summary status
+   ``staged``, target-plan/checkpoint inclusion, update replacement, and
+   rollback restoration for that final archive. These are implementation
+   requirements, not claims about current code.
+
+   The installed Setup source/template and each harness adaptation mapping
+   SHALL forward the selected value unchanged to this public selector. Their
+   shipped invocation text SHALL name Claude Code canonically and shall not
+   classify Claude Code or Qoder as unsupported or experimental. No component
+   may synthesize a Qoder native-import result because no documented
+   programmable Qoder import/delegation/result API exists. The Dev Engineer
+   owns these source, selector, Setup-forwarding, harness-mapping, archive,
+   transaction, and invocation-artifact changes; this design owns the required
+   contract only.
+
    **Deterministic data flow:**
 
    1. Resolve the selected branch to one upstream revision and enumerate only
@@ -250,19 +274,24 @@ Installer Design
       designated orchestration binding defined by
       SYSP_SPEC_HARNESS_ORCHESTRATION_ADAPTER. Files whose content requires no
       adaptation are copied byte-for-byte.
-   5. Build and freeze one complete target plan in memory. The plan names every
+   5. For ``qoder``, build the final archive defined by the Qoder Staging
+      Contract entirely in memory, validate its ZIP structure, ``plugin.json``
+      manifest, normalized member inventory, and digest, and include only the
+      final archive in the target plan. Do not invoke a Qoder CLI/API or infer
+      native acceptance from this validation.
+   6. Build and freeze one complete target plan in memory. The plan names every
       write, orphan deletion, shared resource, missing-only docs creation, and
       Git index entry and includes expected pre-state identities. It rejects
       collisions and validates every path through
       SYSP_SPEC_INSTALLER_DIRECT_OPS immediately before checkpoint creation.
       No source parse, transformation, path derivation, or plan validation
       occurs after this step.
-   6. Write each planned final target atomically without creating a persistent helper
+   7. Write each planned final target atomically without creating a persistent helper
       or intermediary target file only after the complete transaction
       checkpoint exists, enforce Skill mutual exclusion from source metadata,
       remove only eligible syspilot orphans, and accumulate
       installed/updated/removed counts per target directory.
-   7. Return the summary directly to the invoking command or Setup; commit and
+   8. Return the summary directly to the invoking command or Setup; commit and
       success reporting remain gated by SYSP_SPEC_INSTALLER_WORKFLOW and
       SYSP_SPEC_INSTALLER_ROLLBACK. No Installer-agent invocation is required.
 
@@ -334,8 +363,10 @@ Installer Design
 
    1. **Select Source and Harness** — Receive repository, branch, target-root,
       and one explicit harness from the CLI or Setup. Default branch is
-      ``main``. No local product tree or installed harness directory is offered
-      as source, and no additional harness is inferred from directory presence.
+      ``main``. The public harness values are exactly ``vscode``, ``claude``,
+      ``opencode``, and ``qoder``. No local product tree or installed harness
+      directory is offered as source, and no additional harness is inferred
+      from directory presence.
 
    2. **Check Dependencies** — Before Setup or Installer mutates an
       installation target, execute ``uv --version`` and ``git --version``.
@@ -381,6 +412,14 @@ Installer Design
       All files are written as UTF-8 without BOM. Methodology body bytes and
       EOF-newline state are preserved exactly. No wrapper scripts, temporary
       helpers, or intermediary target artifacts are generated.
+
+      For ``qoder``, this step guarantees only a valid staged archive and its
+      reversible project state, which is Qoder's complete, accepted
+      installability evidence at the experimental tier for this change.
+      Native import acceptance is external Qoder UI work, and
+      Manager-to-Engineer orchestration parity for Qoder is deferred future
+      scope; neither is reported as completed installation or production
+      parity.
 
    6. **Configure** — Set up Sphinx. Perform doc bootstrap per
       SYSP_SPEC_INSTALLER_DOC_BOOTSTRAP: create missing ``docs/index.rst`` and
@@ -843,10 +882,14 @@ Installer Design
    1. **Select** — At the start of Workflow Step 5 (Install/Update), the
       Installer accepts exactly one explicit ``--harness`` value:
 
-      Production values are ``vscode`` for VS Code GitHub Copilot project
-      files and ``opencode`` for OpenCode project files. Claude Code and Qoder
-      adapters remain experimental fixture surfaces until their live UAT gates
-      pass. The Installer never infers or adds targets from existing directories.
+      Production-parity values are ``vscode`` for VS Code GitHub Copilot,
+      ``claude`` for Claude Code, and ``opencode`` for OpenCode. ``qoder``
+      for Qoder is the experimental, installable value: its accepted
+      installability evidence is deterministic package staging: native
+      import and Manager-to-Engineer orchestration parity are deferred to a
+      future change. The Installer rejects every other value and never
+      infers or adds targets from existing directories, installed
+      applications, configuration, or environment-specific launcher names.
 
    2. **Adapt** — For the selected harness, invoke
       SYSP_SPEC_INSTALLER_ADAPTER_ENGINE to generate frontmatter per
@@ -867,6 +910,15 @@ Installer Design
 
    4. **Report** — The per-directory run summary (Workflow Step 7) contains
       rows only for the explicit selected harness and shared runtime/docs paths.
+
+   Clean installation, update, injected-failure restoration, rollback, and
+   validation-gated commit behavior are identical for all four values and are
+   owned by SYSP_SPEC_INSTALLER_ADAPTER_ENGINE, SYSP_SPEC_INSTALLER_WORKFLOW,
+   and SYSP_SPEC_INSTALLER_ROLLBACK. Native discovery and loading are owned by
+   SYSP_SPEC_HARNESS_TARGET_MATRIX and its UAT counterpart for the
+   production-parity values; for ``qoder``, that ownership is limited to
+   deterministic package-staging discovery, since native in-app loading is
+   deferred future scope for this change.
 
    **Input:** Target project directory and explicit production harness
    **Output:** Native files for exactly the selected harness

@@ -1,10 +1,9 @@
 Installer Harness Targets UAT
 =============================
 
-User Acceptance Test Story for the ``harness-interop`` change request's
-Installer implementation — each production invocation explicitly selects VS
-Code GitHub Copilot or OpenCode and writes only that harness's adapted files.
-Claude Code and Qoder remain experimental adapter fixtures.
+User Acceptance Test Story for explicit production-harness installation. Each
+invocation selects VS Code GitHub Copilot, OpenCode, Claude Code, or Qoder and
+writes only that harness's adapted files.
 
 
 .. story:: UAT: Installer Harness Targets
@@ -37,8 +36,7 @@ Claude Code and Qoder remain experimental adapter fixtures.
    * ``docs/syspilot/design/spec_harness_adapters.rst`` —
      ``SYSP_SPEC_HARNESS_TARGET_MATRIX``, ``SYSP_SPEC_HARNESS_AGENT_ADAPTER``,
      ``SYSP_SPEC_HARNESS_SKILL_ADAPTER``, ``SYSP_SPEC_HARNESS_PROMPT_ADAPTER``
-   * Isolated target project fixtures for explicit ``vscode``, ``opencode``,
-     ``claude``, and experimental ``qoder`` adapter checks
+   * Isolated target project fixtures for each production harness
 
    **Traceability:**
 
@@ -62,18 +60,19 @@ Claude Code and Qoder remain experimental adapter fixtures.
       ``SYSP_REQ_HARNESS_PORTABILITY_NO_REGRESSION``,
       ``SYSP_REQ_HARNESS_INSTALL_NO_REGRESSION``.
 
-   2. **Claude Code experimental adapter — adapted files generated.**
-      *Precondition:* An isolated deterministic adapter fixture.
-      *Action:* Generate Claude Code output without treating it as a
-      production CLI acceptance run.
+   2. **Claude Code selected — adapted files generated and usable.**
+      *Precondition:* A clean target Git repository.
+      *Action:* Run a fresh install with Claude Code selected.
       *Expected result:* ``.claude/agents/*.md`` and
       ``.claude/skills/<name>/SKILL.md`` exist for every product agent and
       Skill; Skill bodies remain byte-for-byte identical and agent bodies
       differ only at authorized structural binding locations; every agent has
       a valid unique ``syspilot-<role>`` native ``name``; frontmatter omits
-      ``user-invocable``, source ``agents``, Jarvis ``agent``, and ``version`` —
+      source ``agents``, Jarvis ``agent``, and ``version`` and declares
+      ``user-invocable: false`` as a VS Code compatibility extension —
       traces to ``SYSP_REQ_HARNESS_CONTENT_SINGLE_SOURCE``,
-      ``SYSP_REQ_HARNESS_BEHAVIORAL_EQUIVALENCE``.
+      ``SYSP_REQ_HARNESS_BEHAVIORAL_EQUIVALENCE``. Native role and Skill
+      invocation succeeds.
 
    3. **OpenCode selected — command files and native Skill frontmatter
       generated.**
@@ -85,13 +84,24 @@ Claude Code and Qoder remain experimental adapter fixtures.
       ``triggers`` keys while preserving body bytes — traces to
       ``SYSP_REQ_HARNESS_NATIVE_INSTALL``, ``SYSP_SPEC_HARNESS_SKILL_ADAPTER``.
 
-   4. **Qoder experimental adapter — no production claim.**
-      *Precondition:* An isolated deterministic adapter fixture.
-      *Action:* Generate Qoder output as an experimental test target.
-      *Expected result:* ``.qoder/agents/<name>.md`` and
-      ``.qoder/skills/<name>/SKILL.md`` exist; no command or prompt file of
-      any kind is written under ``.qoder/`` — traces to
-      ``SYSP_SPEC_HARNESS_PROMPT_ADAPTER``.
+   4. **Qoder selected — experimental, installable tier package staged.**
+      *Precondition:* A clean target Git repository.
+      *Action:* Run a fresh install with Qoder selected.
+      *Expected result:* the checksummed package archive
+      ``.syspilot/qoder/syspilot-qoder-plugin.zip`` exists per the Qoder
+      Staging Contract (``SYSP_SPEC_HARNESS_TARGET_MATRIX``); no command or
+      prompt artifact is included. This is the accepted installability
+      evidence for the experimental tier; native in-app import and role/Skill
+      invocation inside Qoder are deferred future scope and are not asserted
+      here — traces to ``SYSP_SPEC_HARNESS_PROMPT_ADAPTER``.
+
+      .. note::
+         This acceptance criterion previously described direct
+         ``.qoder/agents`` and ``.qoder/skills`` file writes. That wording
+         predated the Qoder Staging Contract's package-archive model and is
+         corrected here for consistency; it is flagged as a pre-existing
+         MECE inconsistency for Test Designer/Dev Engineer follow-up rather
+         than a new fixture implementation in this design-only pass.
 
    5. **Unselected harnesses remain untouched.**
       *Precondition:* A clean target project.
@@ -104,8 +114,8 @@ Claude Code and Qoder remain experimental adapter fixtures.
       *Precondition:* A target project with a prior syspilot install that
       included ``.claude/`` output, where one previously-installed product
       agent has since been retired from upstream.
-      *Action:* Run the deterministic Claude adapter update fixture.
+      *Action:* Run the deterministic Claude Code adapter update fixture.
       *Expected result:* The retired agent's file is removed from
       ``.claude/agents/``; ``.github/`` is untouched; the run summary table
-      includes the selected Claude directories with correct counts — traces to
+      includes the selected Claude Code directories with correct counts — traces to
       ``SYSP_SPEC_INSTALLER_HARNESS_TARGETS`` Step 4 (Report).

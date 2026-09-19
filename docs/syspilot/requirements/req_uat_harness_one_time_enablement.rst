@@ -15,8 +15,9 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_ONE_TIME_ENABLEMENT``.
 
    * Two clean production Git projects for VS Code GitHub Copilot and
      OpenCode, with no pre-existing syspilot files or harness directory.
-   * Separate Claude Code and Qoder experimental fixtures for static adapter
-     checks; neither fixture counts as production acceptance.
+   * Separate Claude Code production and Qoder experimental-tier fixtures
+     for static adapter checks; both fixtures are required independent
+     acceptance fixtures for their respective tiers.
    * A reachable raw URL for ``syspilot/installer.py`` at upstream revision
      ``R1``.
    * Upstream revision ``R1`` and a later revision ``R2`` with one
@@ -24,8 +25,10 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_ONE_TIME_ENABLEMENT``.
 
    **Tools and Records:**
 
-   * Installed copies of VS Code GitHub Copilot and OpenCode. Claude CLI
-     authentication remains an external prerequisite for its pending live UAT.
+   * Installed VS Code GitHub Copilot and OpenCode, plus an authenticated
+     live Claude Code fixture, are required for independent production
+     acceptance. The Qoder fixture requires only deterministic package
+     staging, not live authenticated native execution, for this change.
    * A checksum manifest of any existing personal/global configuration files
      for each harness, captured before every scenario.
    * A generated-file manifest captured after bootstrap and after update.
@@ -46,3 +49,19 @@ Test data requirements for ``SYSP_US_UAT_HARNESS_ONE_TIME_ENABLEMENT``.
    * Configure injected failures at each post-checkpoint phase, including
      after commit creation but before checkpoint deletion, while preserving an
      uninjected success path.
+
+   **Acceptance Criteria:**
+
+   This requirement owns the one-time enablement mechanism, persistence, and
+   absence of hand-edited harness configuration only. Clean installation,
+   update, injected-failure, and rollback acceptance are owned exclusively by
+   ``SYSP_REQ_UAT_INSTALLER_SPEC_REWRITE`` and SHALL NOT be inferred from this
+   requirement's evidence. Live native Manager, Engineer, Skill, and invocation
+   surface discovery and loading acceptance are owned exclusively by
+   ``SYSP_REQ_UAT_HARNESS_TARGET_MATRIX`` and SHALL NOT be inferred from this
+   requirement's evidence.
+
+   * **AC1**: Acceptance MUST independently verify that one-time enablement
+     uses the supported enablement mechanism for production Claude Code and
+     Qoder without hand-editing harness configuration, persists across repeat
+     use, and requires no repeated enablement action.
