@@ -24,6 +24,8 @@ def _generate_ontology_reference(app):
         data = tomllib.load(f)
 
     needs = data.get("needs", {})
+    syspilot = data.get("syspilot", {})
+
     lines = [
         "<!-- AUTO-GENERATED — do not edit manually. Regenerated on every sphinx-build. -->",
         "",
@@ -42,6 +44,34 @@ def _generate_ontology_reference(app):
             lines.append(
                 f"| `{t['directive']}` | {t['title']} | {t['prefix']} | {t['color']} |"
             )
+        lines.append("")
+
+    # --- Type Relationship Diagram ---
+    type_links = syspilot.get("type_links", [])
+    if type_links:
+        lines.append("## Type Relationships")
+        lines.append("")
+        lines.append("```{mermaid}")
+        lines.append("flowchart BT")
+        for link in type_links:
+            lines.append(f"    {link['from']} -->|{link['rel']}| {link['to']}")
+        lines.append("```")
+        lines.append("")
+
+    # --- Lifecycle Diagram ---
+    transitions = syspilot.get("status_transitions", {})
+    universal = transitions.get("universal", [])
+    universal_exit = transitions.get("universal_exit", [])
+    if universal:
+        lines.append("## Status Lifecycle")
+        lines.append("")
+        lines.append("```{mermaid}")
+        lines.append("stateDiagram-v2")
+        for tr in universal:
+            lines.append(f"    {tr['from']} --> {tr['to']}")
+        for exit_status in universal_exit:
+            lines.append(f"    [*] --> {exit_status} : from any")
+        lines.append("```")
         lines.append("")
 
     output_path.write_text("\n".join(lines), encoding="utf-8")
@@ -79,6 +109,7 @@ exclude_patterns = [
     '.venv',
     'venv',
     'changes/*',
+    'syspilot/conventions.md',
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -93,7 +124,7 @@ html_theme_options = {
     "footer_icons": [
         {
             "name": "GitHub",
-            "url": "https://github.com/enthali/syspilot",
+            "url": "https://github.com/hubertusgbecker/syspilot",
             "html": '<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>',
             "class": "",
         },
@@ -118,19 +149,6 @@ html_sidebars = {
 # .syspilot/ontology.toml — the single source of truth for both Sphinx and ubCode.
 
 needs_from_toml = "../.syspilot/ontology.toml"
-
-# ac/vc needs are fine-grained (one per Given/When/Then) — start them
-# collapsed by default (clean layout) so only title/ID show until clicked;
-# CSS below indents/narrows them to read as sub-items of their parent.
-needs_global_options = {
-    "collapse": {
-        "predicates": [
-            ("type == 'ac'", "True"),
-            ("type == 'vc'", "True"),
-        ],
-        "default": "False",
-    },
-}
 
 # Suppress known deprecation warnings from sphinx-needs config migration
 suppress_warnings = ["needs.deprecated"]

@@ -1,124 +1,134 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/syspilot-logo-dark.svg">
-    <img src="assets/syspilot-logo.svg" alt="Syspilot" width="200">
+    <img src="assets/syspilot-logo.svg" alt="syspilot" width="200">
   </picture>
 </p>
 
-<p align="center"><strong>Requirements engineering that scales with AI-assisted development.</strong></p>
+<p align="center"><strong>Requirements Engineering that scales with AI.</strong></p>
 
-Syspilot gives AI collaborators a traceable product model and durable process
-state. Instead of asking an agent to rediscover your entire project on every
-change, you hand it explicit links, owned artifacts, and an outcome somebody can
-actually check.
+> **⚠️ Early Research Project** — syspilot is under active development. Feel free to use it, fork it, or just study the approach. Updates may introduce breaking changes without migration paths.
 
-> **Early research project:** Syspilot v2 is taking shape in public. The product
-> model, Change process, and release-bound Setup Contract are there to be read
-> and picked apart. End-to-end setup has not yet been demonstrated in an
-> isolated target environment, and we are not going to pretend otherwise.
-> Expect sharp edges and breaking changes.
+> Your project has 5000 requirements. A change affects 5 of them.
+> syspilot follows [sphinx-needs](https://sphinx-needs.readthedocs.io/) traceability links to find exactly those 5 — so your AI agent gets focused context, not the entire codebase.
 
-## Install It
+Cover 100% of your specs with 6x less tokens. Links are deterministic — search is probabilistic. syspilot gives your agents the map, not the flashlight. Built on [sphinx-needs](https://sphinx-needs.readthedocs.io/) by [useblocks](https://useblocks.com). Powered by [GitHub Copilot](https://github.com/features/copilot).
 
-Nothing to clone, nothing to copy into place. Open a GitHub Copilot chat session
-in your own project and send this:
+## Installation
 
-```text
-Install Syspilot into this project.
+Install [Git](https://git-scm.com/) and [uv](https://docs.astral.sh/uv/), then
+run the command for your harness from the root of the target Git repository.
 
-1. Look up the releases of https://github.com/enthali/syspilot, tell me the
-   latest one, and ask me which version to install.
-2. Fetch `docs/Syspilot Processes/setup.md` from that exact tag.
-3. Save it unchanged as `.syspilot/setup-contract.md` in this repository, and
-   make sure it is the only change in the working tree.
-4. Execute that Contract from top to bottom. It owns every further step,
-   question, blocker, and the final handoff.
+Production harnesses: GitHub Copilot in VS Code, Claude Code, and OpenCode. Qoder is
+available as an explicitly disclosed experimental, installable harness.
 
-If the Contract does not describe a step you need, consult me on how to
-proceed.
+### GitHub Copilot in VS Code
+
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness vscode
 ```
 
-That is the entire entry point. It names a release and gets out of the way —
-everything version-specific lives in the Contract that ships with that release.
-See [Getting started](docs/getting-started.md) for what happens next, and for
-the honest boundary on what has and has not been proven at runtime.
+### Claude Code
 
-## Start Here
+Install and authenticate Claude Code first, then run:
 
-| You want to... | Read... |
-|---|---|
-| See what works today | [Getting started](docs/getting-started.md) |
-| Understand why it works this way | [Contract Driven Development](docs/methodology.md) |
-| Understand actors, Needs, and Contracts | [The product model](docs/product-model.md) |
-| Run a change from intent to closure | [The Change Contract](docs/change-contract.md) |
-| Know which branch your work belongs on | [Branching](docs/branching.md) |
-| Tailor Syspilot to a project | [Customization](docs/customization.md) |
-| Build, update, or troubleshoot it | [Operations](docs/operations.md) |
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness claude
+```
 
-The [rendered documentation](https://enthali.github.io/syspilot/index.html)
-also includes the authoritative specifications, actor roles, process
-definitions, traceability views, and historical Field Notes.
+### OpenCode
 
-## The Short Version
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness opencode
+```
 
-Syspilot connects three kinds of truth:
+### Qoder (experimental, installable)
 
-- **Needs** describe why the product exists and what it must do.
-- **Realized artifacts** are the files that make those requirements real.
-- **Contract Documents** hold the current intent, ownership, evidence, and
-  responsibility of one piece of work — so nobody has to reconstruct it from
-  chat history later.
+Install Qoder first, then run:
 
-Eight persistent actors contribute through distinct areas of authority. There is
-no giant scripted relay race, because a fixed sequence eventually prescribes a
-step some change plainly does not need — and a rule nobody can follow is a rule
-everybody learns to ignore. Instead, the open artifacts in the current Contract
-decide who can make the next useful move.
+```bash
+uv run --no-project "https://raw.githubusercontent.com/hubertusgbecker/syspilot/main/syspilot/installer.py" install --harness qoder
+```
 
-## Current Reference Stack
+The Qoder command deterministically stages
+`.syspilot/qoder/syspilot-qoder-plugin.zip`. Import that archive through
+Qoder's documented UI. The import is external and is not performed or reported
+as completed by the Installer. Native in-app import and autonomous
+Manager-to-Engineer orchestration clearance for Qoder are deferred future
+work, not part of this experimental, installable-only tier.
 
-- VS Code with GitHub Copilot.
-- **[Jarvis](https://github.com/enthali/Jarvis)** — the framework that makes
-  persistent actors possible in the first place. It gives each actor an
-  identity, a memory that survives the session, and a way to message the
-  others. Without it, Syspilot is a filing system with strong opinions. Install
-  [`enthali.jarvis-core`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-core)
-  and you have actors.
-- Python 3.13 or newer, and `uv`.
-- [Sphinx-Needs](https://sphinx-needs.readthedocs.io/) on top of Sphinx, which
-  turns requirements into a linked, validated graph instead of a folder of
-  hopeful prose.
+Run the same command again to update. Run one command for each harness used in
+the repository. The defaults are the current directory, repository
+`hubertusgbecker/syspilot`, and branch `main`. Synchronous orchestration is
+installed deterministically.
+For a fork or branch, change the URL and add `--repository <owner>/<repo>
+--branch <branch>`.
 
-Sphinx and Sphinx-Needs are the currently supported realization, and the Change
-process expects their ontology and traceability model. Backend neutrality is an
-intended direction rather than a feature you have today; a future Change has to
-establish and verify it. Syspilot installs no Python packages behind your back —
-the repository preview uses `docs/requirements.txt`.
+The command writes only the explicitly selected harness target, the stable
+`.syspilot/installer.py` runtime, shared resources in `.syspilot/skills/` and
+`.syspilot/templates/`, and missing documentation bootstrap files.
+Installed Setup uses that runtime directly for later updates. Installation
+rejects target-path links and rolls back only syspilot-owned mutable paths, so
+unrelated project files and concurrent unrelated changes remain untouched.
 
-The method itself travels, though. **[enthali/zonal-rc-car](https://github.com/enthali/zonal-rc-car)**
-runs the same Contract-driven actor organisation on a SysML v2 model instead of
-Sphinx-Needs — stakeholder intent, architecture, independent review and physical
-evidence, on an actual RC vehicle. What is currently tied to this stack is
-Syspilot's tooling, not the idea behind it.
+GitHub Copilot CLI has been evaluated for artifact compatibility but is not
+production-certified. Production support for GitHub Copilot currently means
+GitHub Copilot in VS Code.
 
-## Optional Extensions
+## What You Get
 
-- **[`enthali.jarvis-flow`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-flow)**
-  is highly recommended. It draws the messages travelling between actors, which
-  turns "who is waiting on whom?" from a guess into a picture.
-- **[`enthali.jarvis-kanban`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-kanban)**
-  gives actors, projects, and events their own kanban boards as plain YAML in
-  the entity folder. Handy for project management, and pleasantly hard to
-  desynchronise from reality, since the board is a file the actors read and
-  write like any other.
-- **[`enthali.jarvis-syspilot`](https://marketplace.visualstudio.com/items?itemName=enthali.jarvis-syspilot)**
-  may automate the same Contract interfaces. Optional, and it adds no separate
-  installation or update lifecycle to keep track of.
+Four **managers** that orchestrate the work, and seven **engineers** that execute it:
 
-`enthali.jarvis-core` and the three optional extensions above are all developed
-in the **[`enthali/Jarvis`](https://github.com/enthali/Jarvis)** repository.
+| Managers | What they do |
+|----------|-------------|
+| `@syspilot.pm` | Plans features, manages backlog, delegates change requests |
+| `@syspilot.cm` | Orchestrates engineers through the change workflow |
+| `@syspilot.qm` | Runs independent quality checks |
+| `@syspilot.setup` | Installs/updates syspilot in your project |
+
+| Engineers | What they do |
+|-----------|-------------|
+| `@syspilot.design` | Analyzes a change request, creates a Change Document |
+| `@syspilot.implement` | Executes approved changes with traceability |
+| `@syspilot.uat` | Generates user acceptance test artifacts |
+| `@syspilot.verify` | Validates implementation against the Change Document |
+| `@syspilot.docu` | Keeps project documentation current |
+| `@syspilot.mece` | Finds gaps and redundancies in your specs |
+| `@syspilot.trace` | Traces one item through all levels |
+| `@syspilot.release` | Manages versioning and release process |
+
+Agents are stable processes (WHAT to do). **Skills** are exchangeable tool bindings (HOW to do it) — customize syspilot by swapping skills, not agents.
+
+## How It Works
+
+```
+User Story (WHY)  ──links──▶  Requirements (WHAT)  ──links──▶  Design Specs (HOW)
+```
+
+When you request a change, syspilot follows these links to find only the affected elements. **O(affected), not O(total).**
+
+## Documentation
+
+📖 **Full docs:** [hubertusgbecker.github.io/syspilot](https://hubertusgbecker.github.io/syspilot/index.html)
+
+Includes methodology, naming conventions, and traceability matrices.
+
+## Requirements
+
+- **Git**
+- **[uv](https://docs.astral.sh/uv/)**
+- **GitHub Copilot in VS Code**, **Claude Code**, or **OpenCode** (production),
+  or **Qoder** (experimental, installable)
+
+Claude Code must be installed and authenticated before selecting it. Qoder
+must be installed before its staged Plugin archive can be imported through the
+documented Qoder UI.
+
+`uv` resolves the exact Python and package dependencies declared by the remote
+PEP 723 script. No project `.venv`, preinstalled Python packages, or `pip`
+setup is required.
 
 ## License
 
-See [LICENSE](LICENSE).
+This project is licensed under the MIT License. You are free to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the software, provided that the copyright notice and this permission notice are included in all copies or substantial portions of the software. The software is provided "as is", without warranty of any kind. See [LICENSE](LICENSE) for the full license text.
 
